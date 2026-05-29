@@ -1,0 +1,340 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma solidity ^0.8.31;
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./DonationReceiptNFT.sol";
+import "../interfaces/IProposalManager.sol";
+import "../governance/ProposalManager.sol";
+
+/**
+ * @title PoolManager
+ * @notice Handles campaign pool creation and fundraising
+ * @dev Critical withdrawal functions restricted to CORE_ROLE (ZKTCore)
+ */
+contract PoolManager is AccessControl, ReentrancyGuard {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant CORE_ROLE = keccak256("CORE_ROLE");
+    
+    /// @notice Modifier to restrict functions to CORE_ROLE holders (ZKTCore)
+    modifier onlyCore() {
+        require(hasRole(CORE_ROLE, msg.sender), "PoolManager: only CORE_ROLE");
+        _;
+    }
+    
+    struct CampaignPool {
+        uint256 poolId;
+        uint256 proposalId;
+        address organizer;
+        uint256 fundingGoal;
+        uint256 raisedAmount;
+        IProposalManager.CampaignType campaignType;
+        string campaignTitle;
+        bool isActive;
+        uint256 createdAt;
+        address[] donors;
+        bool fundsWithdrawn;
+        uint256 totalWithdrawn;        // Track partial withdrawals for milestone campaigns
+        bool usesMilestones;           // Flag if campaign has milestones
+    }
+    
+    mapping(uint256 => uint256) public proposalToPool;
+    
+    ProposalManager public proposalManager;
+    IERC20 public idrxToken;
+    DonationReceiptNFT public receiptNFT;
+    
+    uint256 public poolCount;
+
+    mapping(uint256 => CampaignPool) public campaignPools;
+    mapping(uint256 => mapping(address => uint256)) public poolDonations;
+
+    // Private donation support
+    mapping(bytes32 => bool) public usedCommitments; // Track used Pedersen commitments
+    
+    event CampaignPoolCreated(
+        uint256 indexed poolId,
+        uint256 indexed proposalId,
+        IProposalManager.CampaignType campaignType
+    );
+    event DonationReceived(
+        uint256 indexed poolId,
+        address indexed donor,
+        uint256 amount,
+        uint256 receiptTokenId
+    );
+    event PrivateDonationReceived(
+        uint256 indexed poolId,
+        bytes32 indexed commitment,
+        uint256 amount,
+        uint256 receiptTokenId
+    );
+    event FundingGoalReached(uint256 indexed poolId, uint256 totalRaised);
+    event FundsWithdrawn(uint256 indexed poolId, address indexed organizer, uint256 amount);
+    event MilestoneFundsReleased(
+        uint256 indexed poolId,
+        uint256 indexed milestoneId,
+        address indexed organizer,
+        uint256 amount
+    );
+    
+    constructor(
+        address _proposalManager,
+        address _idrxToken,
+        address _receiptNFT
+    ) {
+        require(_proposalManager != address(0), "Invalid proposal manager");
+        require(_idrxToken != address(0), "Invalid IDRX token");
+        require(_receiptNFT != address(0), "Invalid receipt NFT");
+        
+        proposalManager = ProposalManager(_proposalManager);
+        idrxToken = IERC20(_idrxToken);
+        receiptNFT = DonationReceiptNFT(_receiptNFT);
+        
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
+    }
+    
+    function createCampaignPool(uint256 proposalId)
+        external
+        onlyRole(ADMIN_ROLE)
+        returns (uint256)
+    {
+        IProposalManager.Proposal memory proposal = proposalManager.getProposal(proposalId);
+
+        require(proposal.status == IProposalManager.ProposalStatus.ShariaApproved, "Not approved");
+        require(proposalToPool[proposalId] == 0, "Pool already created");
+
+        // Check if proposal has milestones
+        uint256 milestoneCount = proposalManager.getMilestoneCount(proposalId);
+        bool hasMilestones = milestoneCount > 0;
+
+        // Reject Zakat campaigns with milestones (should have been caught earlier, but double-check)
+        if (hasMilestones) {
+            require(
+                proposal.campaignType != IProposalManager.CampaignType.ZakatCompliant,
+                "Zakat campaigns cannot use milestones"
+            );
+        }
+
+        poolCount++;
+        uint256 poolId = poolCount;
+
+        CampaignPool storage pool = campaignPools[poolId];
+        pool.poolId = poolId;
+        pool.proposalId = proposalId;
+        pool.organizer = proposal.organizer;
+        pool.fundingGoal = proposal.fundingGoal;
+        pool.campaignType = proposal.campaignType;
+        pool.campaignTitle = proposal.title;
+        pool.isActive = true;
+        pool.createdAt = block.timestamp;
+        pool.totalWithdrawn = 0;
+        pool.usesMilestones = hasMilestones;
+
+        proposalToPool[proposalId] = poolId;
+        proposalManager.updateProposalPoolId(proposalId, poolId);
+        proposalManager.updateProposalStatus(
+            proposalId,
+            IProposalManager.ProposalStatus.PoolCreated,
+            0,
+            0,
+            0
+        );
+
+        emit CampaignPoolCreated(poolId, proposalId, proposal.campaignType);
+
+        return poolId;
+    }
+    
+    function donate(address donor, uint256 poolId, uint256 amount, string memory ipfsCID) external nonReentrant {
+        CampaignPool storage pool = campaignPools[poolId];
+        
+        require(pool.isActive, "Pool not active");
+        require(amount > 0, "Amount must be > 0");
+        require(bytes(ipfsCID).length > 0, "IPFS CID required");
+        
+        require(
+            idrxToken.transferFrom(donor, address(this), amount),
+            "IDRX transfer failed"
+        );
+        
+        bool isFirstDonation = poolDonations[poolId][donor] == 0;
+        
+        if (isFirstDonation) {
+            pool.donors.push(donor);
+        }
+        
+        poolDonations[poolId][donor] += amount;
+        pool.raisedAmount += amount;
+        
+        // Mint new NFT receipt for EVERY donation (one receipt per donation)
+        // IPFS CID contains full metadata: campaign reports, images, donation proof, etc.
+        string memory campaignTypeStr = pool.campaignType == IProposalManager.CampaignType.ZakatCompliant 
+            ? "Zakat" 
+            : "Normal";
+        uint256 receiptTokenId = receiptNFT.mint(donor, poolId, amount, pool.campaignTitle, campaignTypeStr, ipfsCID);
+        
+        emit DonationReceived(poolId, donor, amount, receiptTokenId);
+        
+        if (pool.raisedAmount >= pool.fundingGoal) {
+            emit FundingGoalReached(poolId, pool.raisedAmount);
+        }
+    }
+
+    /**
+     * @notice Make a private donation using Pedersen commitment for privacy
+     * @param donor Address making the donation (for NFT receipt)
+     * @param poolId Campaign pool ID
+     * @param amount Amount to donate
+     * @param commitment Pedersen commitment of the amount (for privacy)
+     * @param ipfsCID IPFS CID containing donation metadata
+     */
+    function donatePrivate(
+        address donor,
+        uint256 poolId,
+        uint256 amount,
+        bytes32 commitment,
+        string memory ipfsCID
+    ) external nonReentrant {
+        CampaignPool storage pool = campaignPools[poolId];
+
+        require(pool.isActive, "Pool not active");
+        require(amount > 0, "Amount must be > 0");
+        require(commitment != bytes32(0), "Invalid commitment");
+        require(bytes(ipfsCID).length > 0, "IPFS CID required");
+        require(!usedCommitments[commitment], "Commitment already used");
+
+        // Mark commitment as used to prevent double-spend
+        usedCommitments[commitment] = true;
+
+        require(
+            idrxToken.transferFrom(donor, address(this), amount),
+            "IDRX transfer failed"
+        );
+
+        // For private donations: track total raised but NOT individual donor addresses
+        // The donor address is kept private - only the commitment is recorded
+        pool.raisedAmount += amount;
+
+        // For private donations, mint NFT to a neutral address or skip minting
+        // The commitment serves as proof without revealing donor identity
+        // In production: could mint to address(0) and emit commitment-based receipt
+        string memory campaignTypeStr = pool.campaignType == IProposalManager.CampaignType.ZakatCompliant
+            ? "Zakat"
+            : "Normal";
+        
+        // Emit event with commitment (not donor address) for privacy
+        emit PrivateDonationReceived(poolId, commitment, amount, 0);
+
+        if (pool.raisedAmount >= pool.fundingGoal) {
+            emit FundingGoalReached(poolId, pool.raisedAmount);
+        }
+    }
+    
+    function withdrawFunds(address organizer, uint256 poolId) external onlyCore nonReentrant {
+        CampaignPool storage pool = campaignPools[poolId];
+
+        require(pool.organizer == organizer, "Not organizer");
+        require(!pool.fundsWithdrawn, "Funds already withdrawn");
+        require(pool.raisedAmount > 0, "No funds to withdraw");
+        require(!pool.usesMilestones, "Use withdrawMilestoneFunds for milestone campaigns");
+        require(pool.raisedAmount >= pool.fundingGoal, "Funding goal not met");
+
+        pool.fundsWithdrawn = true;
+        pool.isActive = false;
+
+        uint256 amount = pool.raisedAmount;
+        proposalManager.updateProposalStatus(
+            pool.proposalId,
+            IProposalManager.ProposalStatus.Completed,
+            0,
+            0,
+            0
+        );
+
+        require(idrxToken.transfer(organizer, amount), "Transfer failed");
+
+        emit FundsWithdrawn(poolId, organizer, amount);
+    }
+
+    /**
+     * @notice Withdraw funds for an approved milestone
+     * @param organizer Address of the organizer
+     * @param poolId Campaign pool ID
+     * @param milestoneId Milestone index to withdraw funds for
+     */
+    function withdrawMilestoneFunds(address organizer, uint256 poolId, uint256 milestoneId)
+        external
+        onlyCore
+        nonReentrant
+    {
+        CampaignPool storage pool = campaignPools[poolId];
+
+        require(pool.organizer == organizer, "Not organizer");
+        require(pool.usesMilestones, "Pool does not use milestones");
+        require(pool.raisedAmount > 0, "No funds available");
+
+        // Get milestone and validate
+        IProposalManager.Milestone memory milestone =
+            proposalManager.getMilestone(pool.proposalId, milestoneId);
+
+        require(milestone.milestoneId == milestoneId, "Milestone does not exist");
+        require(
+            milestone.status == IProposalManager.MilestoneStatus.Approved,
+            "Milestone not approved"
+        );
+
+        // Validate we don't exceed raised amount
+        require(
+            pool.totalWithdrawn + milestone.targetAmount <= pool.raisedAmount,
+            "Insufficient funds in pool"
+        );
+
+        // Update pool tracking
+        pool.totalWithdrawn += milestone.targetAmount;
+
+        // Update milestone status to Completed
+        proposalManager.updateMilestoneStatus(
+            pool.proposalId,
+            milestoneId,
+            IProposalManager.MilestoneStatus.Completed,
+            milestone.votesFor,
+            milestone.votesAgainst,
+            milestone.votesAbstain
+        );
+
+        // Advance to next milestone
+        proposalManager.advanceToNextMilestone(pool.proposalId);
+        proposalManager.addToReleasedAmount(pool.proposalId, milestone.targetAmount);
+
+        // Check if all milestones completed
+        uint256 milestoneCount = proposalManager.getMilestoneCount(pool.proposalId);
+        IProposalManager.Proposal memory proposal = proposalManager.getProposal(pool.proposalId);
+        if (proposal.currentMilestoneIndex >= milestoneCount) {
+            pool.fundsWithdrawn = true;
+            pool.isActive = false;
+        }
+
+        // Transfer funds
+        require(idrxToken.transfer(organizer, milestone.targetAmount), "Transfer failed");
+
+        emit MilestoneFundsReleased(poolId, milestoneId, organizer, milestone.targetAmount);
+    }
+
+    function getPool(uint256 poolId) external view returns (CampaignPool memory) {
+        return campaignPools[poolId];
+    }
+    
+    function getPoolDonors(uint256 poolId) external view returns (address[] memory) {
+        return campaignPools[poolId].donors;
+    }
+    
+    function getDonorContribution(uint256 poolId, address donor) 
+        external 
+        view 
+        returns (uint256) 
+    {
+        return poolDonations[poolId][donor];
+    }
+}
