@@ -16,6 +16,11 @@ contract TawfPassport is ERC5192, AccessControl, ITawfPassport {
     mapping(uint256 => string) private _metadataURI;
     mapping(address => bool) private _verified;
 
+    string private _issuerDID;
+    mapping(address => bytes32[]) private _credentialHashes;
+    mapping(address => mapping(bytes32 => string)) private _vcIPFSUri;
+    mapping(address => mapping(bytes32 => bool)) private _credentialValid;
+
     constructor() ERC5192("Tawf Passport", "TPASS", true) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(ADMIN_ROLE, msg.sender);
@@ -58,8 +63,19 @@ contract TawfPassport is ERC5192, AccessControl, ITawfPassport {
         delete _passportType[tokenId];
         delete _metadataURI[tokenId];
         delete _verified[holder];
+        _invalidateAllCredentials(holder);
         _burn(tokenId);
         emit PassportRevoked(holder, tokenId);
+    }
+
+    function _invalidateAllCredentials(address holder) private {
+        bytes32[] storage hashes = _credentialHashes[holder];
+        for (uint256 i = 0; i < hashes.length; i++) {
+            bytes32 h = hashes[i];
+            _credentialValid[holder][h] = false;
+            emit CredentialRevoked(holder, _holderToTokenId[holder], h);
+        }
+        delete _credentialHashes[holder];
     }
 
     function updateMetadata(uint256 tokenId, string calldata newMetadataURI) external {
@@ -75,6 +91,35 @@ contract TawfPassport is ERC5192, AccessControl, ITawfPassport {
         if (!hasPassport(holder)) revert PassportNotFound();
         _verified[holder] = verified;
         emit PassportVerified(holder, verified);
+    }
+
+    function setIssuerDID(string calldata did) external onlyRole(ADMIN_ROLE) {
+        _issuerDID = did;
+        emit IssuerDIDSet(did);
+    }
+
+    function issueCredential(address holder, bytes32 credentialHash, string calldata vcIPFSUri)
+        external
+        onlyRole(ISSUER_ROLE)
+    {
+        uint256 tokenId = _holderToTokenId[holder];
+        if (tokenId == 0) revert PassportNotFound();
+
+        _credentialHashes[holder].push(credentialHash);
+        _vcIPFSUri[holder][credentialHash] = vcIPFSUri;
+        _credentialValid[holder][credentialHash] = true;
+
+        emit CredentialIssued(holder, tokenId, credentialHash, vcIPFSUri);
+    }
+
+    function revokeCredential(address holder, bytes32 credentialHash) external onlyRole(ADMIN_ROLE) {
+        if (!hasPassport(holder)) revert PassportNotFound();
+        if (!_credentialValid[holder][credentialHash]) revert CredentialNotFound();
+
+        _credentialValid[holder][credentialHash] = false;
+
+        uint256 tokenId = _holderToTokenId[holder];
+        emit CredentialRevoked(holder, tokenId, credentialHash);
     }
 
     function hasPassport(address holder) public view returns (bool) {
@@ -93,6 +138,26 @@ contract TawfPassport is ERC5192, AccessControl, ITawfPassport {
     function getPassportType(address holder) external view returns (PassportType) {
         if (!hasPassport(holder)) revert PassportNotFound();
         return _passportType[_holderToTokenId[holder]];
+    }
+
+    function getIssuerDID() external view returns (string memory) {
+        return _issuerDID;
+    }
+
+    function getCredentialHash(address holder, uint256 index) external view returns (bytes32) {
+        return _credentialHashes[holder][index];
+    }
+
+    function getCredentialCount(address holder) external view returns (uint256) {
+        return _credentialHashes[holder].length;
+    }
+
+    function getVcIPFSUri(address holder, bytes32 credentialHash) external view returns (string memory) {
+        return _vcIPFSUri[holder][credentialHash];
+    }
+
+    function isCredentialValid(address holder, bytes32 credentialHash) external view returns (bool) {
+        return _credentialValid[holder][credentialHash];
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {

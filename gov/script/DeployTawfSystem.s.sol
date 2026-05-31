@@ -73,6 +73,12 @@ contract DeployTawfSystem is Script {
         passport.issuePassport(deployer, PassportType.ShariaCouncil, "ipfs://deployer-sharia-council");
         passport.setVerified(deployer, true);
 
+        // Set W3C Verifiable Credential issuer DID
+        passport.setIssuerDID("did:ethr:0x0000000000000000000000000000000000000000");
+
+        // Issue a sample W3C Verifiable Credential to deployer
+        passport.issueCredential(deployer, bytes32(uint256(1)), "ipfs://vc-deployer-sharia-council");
+
         vm.stopBroadcast();
 
         console.log("\n=== Deployed Addresses ===");
