@@ -1,274 +1,114 @@
 # Tawf Governance System
 
-A comprehensive blockchain-based governance system implementing Islamic principles with zero-knowledge proofs for Sharia compliance verification.
+The governance backbone for the TAWF Sharia DApps Ecosystem. Provides identity (Tawf Passport), reputation, proposals, voting, milestone-based fund release, campaign pools, and Zakat-compliant escrow.
 
-## Architecture Overview
+**Live on Ethereum Sepolia** — wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon).
 
-The Tawf system consists of four main layers:
+## Architecture
 
-### 1. Identity Layer
-- **TawfDID**: Soulbound NFT-based decentralized identity system
-- **TawfReputation**: On-chain reputation tracking for community participation
+```
+src/
+├── identity/
+│   ├── TawfPassport.sol       ERC-5192 soulbound — Muzakki, Mustahik, Organization, ShariaCouncil
+│   ├── TawfReputation.sol     Points-based reputation with history
+│   ├── ERC5192.sol            Minimal Soulbound NFT (Final, EIP-5192)
+│   └── IERC5192.sol           ERC-5192 interface
+├── governance/
+│   ├── ProposalManager.sol    Proposal lifecycle, KYC, campaign types, milestones
+│   ├── VotingManager.sol      Tiered NFT voting (Tier 1/2/3 based on participation)
+│   ├── MilestoneManager.sol   Sequential fund release with proof submission + voting
+│   └── ParticipationTracker.sol  Privacy-safe activity counts (no amounts stored)
+├── protocol/
+│   ├── PoolManager.sol        Campaign pool creation, fundraising, withdrawal
+│   ├── ZakatEscrowManager.sol Shafi'i-compliant Zakat escrow (30-day deadline, grace, redistribution)
+│   └── DonationReceiptNFT.sol Soulbound ERC-721 receipt per donation
+├── tokens/
+│   ├── MockIDRX.sol           Testnet ERC-20 stablecoin with faucet
+│   └── VotingNFT.sol          Soulbound voting power (Tier 1=1, Tier 2=2, Tier 3=3 votes)
+├── admin/
+│   ├── ProtocolAdmin.sol      Pause + admin controls
+│   └── TawfLabsMultisig.sol   2-of-N multisig wallet
+├── protocol/
+│   └── WakafTreasury.sol      Endowment fund management
+└── interfaces/
+    ├── ITawfPassport.sol
+    ├── ITawfReputation.sol
+    ├── IProposalManager.sol
+    └── IProtocolAdmin.sol
+```
 
-### 2. Governance Layer
-- **CommunityDAO**: Community-driven proposal and voting system
-- **ProposalRegistry**: Batching and lifecycle management for proposals
-- **ZKShariaDAO**: Private Sharia compliance verification using zero-knowledge proofs
+## Sepolia Deployment (V1 — 2026-05-29)
 
-### 3. Protocol Layer
-- **WakafTreasury**: Endowment fund management with transparent allocations
-- **CampaignManager**: Fundraising campaign creation and contribution tracking
-- **VendorRegistry**: Verified vendor and organizer management
-- **NFTReceiptIssuer**: Contribution receipt NFTs for transparency
+| Contract | Address |
+|----------|---------|
+| TawfPassport | `0x68A39923A1b80F3d48B4bd60FBe4187Ff2B0a38e` |
+| TawfReputation | `0xEBc9637933575Aa3b047Dc19C4dE3706F03DC32c` |
+| VotingNFT | `0xEb44b1409F34944cd137DD522e8FE9dD41533D33` |
+| DonationReceiptNFT | `0x536a7249113E2f2c06a6E85acDa9B54dc79F5e58` |
+| ProposalManager | `0x37f87a1913a8efAE70a39850f8c9e2C63AeC556B` |
+| VotingManager | `0x4B6600f35592A83770A610a038c012186471143a` |
+| MilestoneManager | `0xb0Fa6d4a2038ed85c9d16664BeeD169858D5f183` |
+| ParticipationTracker | `0xA2313195cB23cC0AeB28E94f43DFBE0Fdc3d2e37` |
+| PoolManager | `0x10bE98A362c18d690BEd51069F8D0c847cf2092A` |
+| ZakatEscrowManager | `0x3534105fD0338dAF5Faa0BC97c760Fe861bd052e` |
+| MockIDRX | `0x23A48A17ea36627ACF4Ce349C14d17c7e7F90BCE` |
 
-### 4. Safety & Admin Layer
-- **ProtocolAdmin**: Emergency pause and admin controls
-- **TawfLabsMultisig**: Multi-signature wallet for critical operations
+**Deploy script:** `script/DeployTawfSystem.s.sol` · Gas used: ~28.3M
 
-## Contract Addresses
+## Tawf Passport Types (ERC-5192)
 
-After deployment, contract addresses will be listed here.
+| Type | Who | Can do |
+|------|-----|--------|
+| **Muzakki** | Donor | Donate, generate ZK eligibility proofs |
+| **Mustahik** | Recipient | Receive zakat, encrypted off-chain metadata |
+| **Organization** | NGO/Charity | Create proposals, manage campaigns, withdraw funds |
+| **ShariaCouncil** | Islamic scholar | Review proposals, session-code auth (no wallet needed) |
 
-## Features
+Soulbound via ERC-5192. Burn rights: holder can `renouncePassport()`, admin can `revokePassport()`.
 
-### Identity & Reputation
-- Non-transferable (soulbound) identity tokens
-- IPFS-based metadata storage
-- Reputation scoring based on community participation
-- KYC verification integration
-
-### Governance
-- Reputation-weighted voting
-- Configurable voting parameters (threshold, delay, period, quorum)
-- Proposal batching for efficient execution
-- Private Sharia council review with ZK proofs
-- Emergency veto capabilities
-
-### Fundraising
-- Vendor verification system
-- Campaign creation with customizable goals and durations
-- Automatic NFT receipt issuance for contributions
-- Transparent fund tracking
-- Campaign verification by admins
-
-### Safety
-- Pausable contracts
-- Multi-signature controls for critical operations
-- Role-based access control
-- Emergency action mechanisms
-
-## Installation
+## Quick Start
 
 ```bash
-# Clone the repository
-git clone <repository-url>
+git clone https://github.com/tawf-labs/tawf-gov.git
 cd tawf-gov/gov
-
-# Install dependencies
-forge install
-
-# Build contracts
 forge build
 ```
 
-## Testing
+### Deploy
 
 ```bash
-# Run all tests
+forge script script/DeployTawfSystem.s.sol \
+  --rpc-url sepolia --account <name> --broadcast
+```
+
+### Test
+
+```bash
 forge test
-
-# Run tests with gas reporting
-forge test --gas-report
-
-# Run specific test file
-forge test --match-path test/TawfDID.t.sol
-
-# Run tests with verbosity
-forge test -vvv
 ```
 
-## Deployment
+## Integration with zkt-hackathon
 
-### Local Deployment (Anvil)
-
-```bash
-# Start local node
-anvil
-
-# Deploy (in another terminal)
-forge script script/DeployTawfSystem.s.sol:DeployTawfSystem \
-  --rpc-url http://localhost:8545 \
-  --private-key <PRIVATE_KEY> \
-  --broadcast
-```
-
-### Testnet Deployment
-
-```bash
-# Set environment variables
-export PRIVATE_KEY=<your-private-key>
-export RPC_URL=<testnet-rpc-url>
-
-# Deploy
-forge script script/DeployTawfSystem.s.sol:DeployTawfSystem \
-  --rpc-url $RPC_URL \
-  --private-key $PRIVATE_KEY \
-  --broadcast \
-  --verify
-```
-
-### Setup Test Data
-
-```bash
-# After deployment, set contract addresses
-export DID_CONTRACT=<did-contract-address>
-export REPUTATION_CONTRACT=<reputation-contract-address>
-export VENDOR_REGISTRY=<vendor-registry-address>
-
-# Run setup script
-forge script script/SetupTestData.s.sol:SetupTestData \
-  --rpc-url $RPC_URL \
-  --private-key $PRIVATE_KEY \
-  --broadcast
-```
-
-## Usage Examples
-
-### Issuing a DID
+The ZK layer ([zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon)) imports these contracts via forge submodule:
 
 ```solidity
-// As an issuer
-didContract.issueDID(userAddress, "ipfs://QmMetadata...");
-didContract.setVerified(userAddress, true);
+import "@tawf-gov/governance/ProposalManager.sol";
+import "@tawf-gov/protocol/PoolManager.sol";
+// ... etc
 ```
 
-### Creating a Proposal
-
-```solidity
-// User must have DID and minimum reputation
-communityDAO.propose(
-    "Proposal Title",
-    "Detailed description",
-    encodedCallData
-);
-```
-
-### Voting on a Proposal
-
-```solidity
-// 0 = Against, 1 = For, 2 = Abstain
-communityDAO.castVote(proposalId, 1);
-```
-
-### Creating a Campaign
-
-```solidity
-// Vendor must be verified
-campaignManager.createCampaign(
-    "Campaign Title",
-    "ipfs://QmCampaignDetails...",
-    10 ether, // goal
-    30 days   // duration
-);
-```
-
-### Contributing to a Campaign
-
-```solidity
-// Anyone can contribute
-campaignManager.contribute{value: 1 ether}(campaignId);
-// Receipt NFT is automatically issued
-```
-
-## Contract Interfaces
-
-All contract interfaces are defined in `src/interfaces/`:
-
-- `ITawfDID.sol`
-- `ITawfReputation.sol`
-- `ICommunityDAO.sol`
-- `IProposalRegistry.sol`
-- `IZKShariaDAO.sol`
-- `IWakafTreasury.sol`
-- `ICampaignManager.sol`
-- `IVendorRegistry.sol`
-- `INFTReceiptIssuer.sol`
-- `IProtocolAdmin.sol`
-
-## Security Considerations
-
-1. **Access Control**: All contracts use OpenZeppelin's AccessControl for role-based permissions
-2. **Reentrancy Protection**: Critical functions are protected with ReentrancyGuard
-3. **Pausability**: Key contracts can be paused in emergencies
-4. **Multi-signature**: Critical operations require multi-sig approval
-5. **Soulbound Tokens**: DIDs are non-transferable to prevent identity trading
+ZKTCore acts as the orchestration layer, wiring ZK proof verification (Groth16/UltraHONK) and nullifier-based double-spend prevention on top of the DAO contracts provided by this repo.
 
 ## Governance Parameters
 
-Default values (can be updated by admin):
-
-- **Proposal Threshold**: 100 reputation points
-- **Voting Delay**: 1 block
-- **Voting Period**: 50,400 blocks (~7 days)
-- **Quorum**: 1,000 votes
-- **Multisig Threshold**: 2-of-N signatures
-
-## Development
-
-### Project Structure
-
-```
-gov/
-├── src/
-│   ├── identity/       # DID and Reputation contracts
-│   ├── governance/     # DAO and proposal contracts
-│   ├── protocol/       # Treasury, Campaign, Vendor contracts
-│   ├── admin/          # Admin and multisig contracts
-│   └── interfaces/     # Contract interfaces
-├── script/             # Deployment and setup scripts
-├── test/              # Test files
-└── foundry.toml       # Foundry configuration
-```
-
-### Adding New Contracts
-
-1. Create contract in appropriate `src/` subdirectory
-2. Create interface in `src/interfaces/`
-3. Add to deployment script
-4. Write comprehensive tests
-5. Update documentation
-
-## Roadmap
-
-- [ ] ZK proof verification integration
-- [ ] Subgraph for indexing and querying
-- [ ] Frontend dApp interfaces
-- [ ] Multi-chain deployment
-- [ ] Governance token (if needed)
-- [ ] Advanced reputation algorithms
-- [ ] Integration with external KYC providers
-
-## Contributing
-
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+| Parameter | Default | Settable via |
+|-----------|---------|-------------|
+| Voting period | 7 days | `ZKTCore.setVotingPeriod()` |
+| Quorum | 10% of VotingNFT supply | `VotingManager.setQuorumPercentage()` |
+| Pass threshold | 51% | `VotingManager.setPassThreshold()` |
+| Sharia quorum | 3 reviewers | `ShariaReviewManager.setShariaQuorum()` |
+| Zakat deadline | 30 days | Hardcoded in ZakatEscrowManager |
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- OpenZeppelin for secure contract implementations
-- Foundry for development framework
-- Community contributors
-
-## Contact
-
-For questions and support:
-- GitHub Issues: [Create an issue]
-- Discord: [Join our Discord]
-- Email: contact@tawf.labs
-
----
-
-Built with ❤️ by Tawf Labs
+MIT — see LICENSE.
