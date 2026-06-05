@@ -1,0 +1,65 @@
+@theme {
+  --color-tawf-green: #0F3D30;
+  --color-tawf-gold: #C5A869;
+  --color-tawf-sand: #F9F6F0;
+  --color-tawf-ink: #1A1A1A;
+  --color-tawf-muted: #6B7280;
+  --color-tawf-green-light: #1A5240;
+  --color-tawf-gold-light: #D4B98A;
+  --color-tawf-sand-dark: #F0EDE6;
+  --color-tawf-border: #E5E0D8;
+
+  --font-family-heading: "Cormorant Garamond", serif;
+  --font-family-body: "Inter", sans-serif;
+
+  --spacing-card: 16px;
+  --spacing-section: 32px;
+  --spacing-hero: 64px;
+
+  --border-radius-pill: 9999px;
+  --border-radius-card: 16px;
+  --border-radius-sm: 8px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-tawf-sand text-tawf-ink font-body;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .btn-pill {
+    @apply inline-flex items-center justify-center rounded-full px-6 py-3 font-medium transition-all duration-200;
+    @apply bg-tawf-green text-white hover:bg-tawf-green-light active:scale-[0.98];
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-full px-6 py-3 font-medium transition-all duration-200;
+    @apply border-2 border-tawf-green text-tawf-green hover:bg-tawf-green hover:text-white active:scale-[0.98];
+  }
+
+  .card {
+    @apply bg-white rounded-card p-6 shadow-lg;
+    border: 1px solid var(--color-tawf-border);
+  }
+
+  .prose-heading {
+    @apply font-heading text-4xl md:text-5xl font-bold text-tawf-green leading-tight;
+  }
+
+  .prose-subheading {
+    @apply font-heading text-2xl md:text-3xl text-tawf-green-light;
+  }
+}
