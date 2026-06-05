@@ -1,66 +1,40 @@
-## Foundry
+# Tawf Governance — Ethereum Contracts (V1)
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This directory contains the original Ethereum Solidity contracts for the Tawf Governance System, deployed on Sepolia testnet.
 
-Foundry consists of:
+> **Note**: Active development has moved to Solana. See [`tawf-gov-solana/`](../tawf-gov-solana) for the current Anchor programs.
+> See [`feat/solana-migration`](https://github.com/tawf-labs/tawf-gov/tree/feat/solana-migration) branch.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## Contracts
 
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```
+src/
+├── identity/        TawfPassport (ERC-5192), TawfReputation
+├── governance/      ProposalManager, VotingManager, MilestoneManager, ParticipationTracker
+├── protocol/        PoolManager, ZakatEscrowManager, WakafTreasury, DonationReceiptNFT
+├── tokens/          MockIDRX, VotingNFT
+├── admin/           ProtocolAdmin, TawfLabsMultisig
+└── interfaces/      ITawfPassport, IProposalManager, etc.
 ```
 
-### Test
+## Build & Test
 
-```shell
-$ forge test
+```bash
+forge build
+forge test -vvv
 ```
 
-### Format
+## Deploy
 
-```shell
-$ forge fmt
+```bash
+forge script script/DeployTawfSystem.s.sol \
+  --rpc-url sepolia --account <name> --broadcast
 ```
 
-### Gas Snapshots
+## Sepolia Addresses
 
-```shell
-$ forge snapshot
-```
+See [README.md](../README.md#ethereum-version-v1--sepolia) for full contract list.
 
-### Anvil
+## License
 
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+MIT

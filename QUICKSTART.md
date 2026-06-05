@@ -1,294 +1,190 @@
-# Tawf Governance System - Quick Start Guide
+# Tawf Governance System — Quick Start Guide
 
-## Prerequisites
+## Solana Migration (Active)
+
+> **Branch**: `feat/solana-migration`
+
+### Prerequisites
+
+```bash
+# Solana toolchain
+solana --version    # ≥ 1.18 (v3.1.12)
+anchor --version    # ≥ 0.31.0
+rustc --version     # ≥ 1.79
+
+# Node.js
+node --version      # ≥ 18 (v22.22.2)
+```
+
+### Setup
+
+```bash
+git checkout feat/solana-migration
+cd tawf-gov-solana
+npm install
+```
+
+### Start Local Validator
+
+```bash
+solana-test-validator --reset --quiet &
+```
+
+### Create & Fund Deployer Wallet
+
+```bash
+solana-keygen new -o /tmp/chaos-wallet.json --no-bip39-passphrase --force
+solana config set --keypair /tmp/chaos-wallet.json --url localhost
+solana airdrop 500
+```
+
+### Build & Deploy All 11 Programs
+
+```bash
+anchor build
+anchor deploy
+```
+
+### Run Integration Tests (27 tests)
+
+```bash
+ANCHOR_PROVIDER_URL=http://localhost:8899 ANCHOR_WALLET=/tmp/chaos-wallet.json \
+  npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/*.ts'
+```
+
+### Start Frontend
+
+```bash
+cd ../tawf-gov-frontend
+npm install
+npm run dev
+```
+
+---
+
+## Ethereum Version (V1 — Sepolia)
+
+### Prerequisites
 
 - Foundry installed (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
-- Git
-- A wallet with some testnet ETH
+- A wallet with testnet ETH
 
-## Quick Setup
-
-### 1. Build the Project
+### Build
 
 ```bash
 cd gov
 forge build
 ```
 
-### 2. Run Tests
+### Test
 
 ```bash
-forge test
+forge test -vvv
 ```
 
-### 3. Deploy Locally
+### Deploy Locally
 
 ```bash
-# Terminal 1: Start local node
+# Terminal 1
 anvil
 
-# Terminal 2: Deploy
+# Terminal 2
 forge script script/DeployTawfSystem.s.sol:DeployTawfSystem \
   --rpc-url http://localhost:8545 \
   --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
   --broadcast
 ```
 
-## Key Commands
+---
 
-### Building
-```bash
-forge build                 # Compile contracts
-forge build --force         # Force recompile
-forge clean                 # Clean build artifacts
-```
+## Key Commands Reference
 
-### Testing
-```bash
-forge test                  # Run all tests
-forge test -vvv            # Verbose output
-forge test --match-test testName  # Run specific test
-forge test --gas-report    # Show gas usage
-```
+### Solana (Anchor)
 
-### Deployment
-```bash
-# Local (Anvil)
-forge script script/DeployTawfSystem.s.sol:DeployTawfSystem \
-  --rpc-url http://localhost:8545 \
-  --private-key <KEY> \
-  --broadcast
+| Command | Description |
+|---------|-------------|
+| `anchor build` | Build all 11 programs |
+| `anchor deploy` | Deploy to configured cluster |
+| `anchor test` | Build + deploy + run mocha tests |
+| `solana-test-validator --reset` | Start fresh local validator |
 
-# Testnet (e.g., Sepolia)
-forge script script/DeployTawfSystem.s.sol:DeployTawfSystem \
-  --rpc-url $SEPOLIA_RPC_URL \
-  --private-key $PRIVATE_KEY \
-  --broadcast \
-  --verify \
-  --etherscan-api-key $ETHERSCAN_API_KEY
-```
+### Ethereum (Foundry)
 
-## Contract Interactions
-
-### Using Cast (Foundry CLI)
-
-#### Read Operations
-
-```bash
-# Check if address has DID
-cast call <DID_CONTRACT> "hasDID(address)(bool)" <USER_ADDRESS>
-
-# Get reputation
-cast call <REPUTATION_CONTRACT> "getReputation(address)(uint256)" <USER_ADDRESS>
-
-# Get campaign details
-cast call <CAMPAIGN_MANAGER> "getCampaign(uint256)" <CAMPAIGN_ID>
-
-# Get proposal state
-cast call <COMMUNITY_DAO> "state(uint256)(uint8)" <PROPOSAL_ID>
-```
-
-#### Write Operations
-
-```bash
-# Issue DID (as issuer)
-cast send <DID_CONTRACT> \
-  "issueDID(address,string)(uint256)" \
-  <USER_ADDRESS> "ipfs://QmMetadata..." \
-  --private-key <ISSUER_PRIVATE_KEY>
-
-# Create proposal
-cast send <COMMUNITY_DAO> \
-  "propose(string,string,bytes)(uint256)" \
-  "Title" "Description" "0x" \
-  --private-key <USER_PRIVATE_KEY>
-
-# Vote on proposal
-cast send <COMMUNITY_DAO> \
-  "castVote(uint256,uint8)" \
-  <PROPOSAL_ID> 1 \
-  --private-key <USER_PRIVATE_KEY>
-
-# Create campaign
-cast send <CAMPAIGN_MANAGER> \
-  "createCampaign(string,string,uint256,uint256)(uint256)" \
-  "Title" "ipfs://..." 1000000000000000000 2592000 \
-  --private-key <VENDOR_PRIVATE_KEY>
-
-# Contribute to campaign
-cast send <CAMPAIGN_MANAGER> \
-  "contribute(uint256)" <CAMPAIGN_ID> \
-  --value 1ether \
-  --private-key <CONTRIBUTOR_PRIVATE_KEY>
-```
-
-## Common Workflows
-
-### 1. Onboard New User
-
-```bash
-# 1. Issue DID
-cast send $DID_CONTRACT "issueDID(address,string)" $USER "ipfs://metadata" --pk $ADMIN_KEY
-
-# 2. Verify user
-cast send $DID_CONTRACT "setVerified(address,bool)" $USER true --pk $ADMIN_KEY
-
-# 3. Grant initial reputation
-cast send $REPUTATION_CONTRACT "increaseReputation(address,uint256,string)" \
-  $USER 100 "Welcome bonus" --pk $ADMIN_KEY
-```
-
-### 2. Create and Execute Proposal
-
-```bash
-# 1. Create proposal
-PROPOSAL_ID=$(cast send $DAO "propose(string,string,bytes)" \
-  "Title" "Description" "0x" --pk $USER_KEY)
-
-# 2. Wait for voting delay
-sleep 15  # or more based on blocks
-
-# 3. Vote
-cast send $DAO "castVote(uint256,uint8)" $PROPOSAL_ID 1 --pk $USER1_KEY
-cast send $DAO "castVote(uint256,uint8)" $PROPOSAL_ID 1 --pk $USER2_KEY
-
-# 4. Wait for voting period to end
-# ...
-
-# 5. Register in proposal registry
-cast send $REGISTRY "registerProposal(uint256,bytes)" $PROPOSAL_ID "0x" --pk $ADMIN_KEY
-
-# 6. Sharia review
-cast send $ZK_DAO "submitReview(uint256,uint8,bytes32,string)" \
-  $PROPOSAL_ID 1 $PROOF_HASH "ipfs://justification" --pk $COUNCIL_KEY
-
-# 7. Create batch
-cast send $REGISTRY "createBatch(uint256[])" "[$PROPOSAL_ID]" --pk $ADMIN_KEY
-
-# 8. Execute via multisig
-# Submit transaction to multisig
-# Confirm with threshold signers
-# Execute
-```
-
-### 3. Run a Campaign
-
-```bash
-# 1. Register as vendor
-cast send $VENDOR_REGISTRY "registerVendor(string,string)" \
-  "My Org" "ipfs://metadata" --pk $VENDOR_KEY
-
-# 2. Get verified
-cast send $VENDOR_REGISTRY "verifyVendor(address)" $VENDOR --pk $ADMIN_KEY
-
-# 3. Create campaign
-CAMPAIGN_ID=$(cast send $CAMPAIGN_MANAGER \
-  "createCampaign(string,string,uint256,uint256)" \
-  "Title" "ipfs://desc" 10000000000000000000 2592000 --pk $VENDOR_KEY)
-
-# 4. Contributors donate
-cast send $CAMPAIGN_MANAGER "contribute(uint256)" $CAMPAIGN_ID \
-  --value 1ether --pk $CONTRIBUTOR_KEY
-
-# 5. Withdraw when complete
-cast send $CAMPAIGN_MANAGER "withdrawFunds(uint256)" $CAMPAIGN_ID --pk $VENDOR_KEY
-```
-
-## Environment Variables
-
-Create a `.env` file:
-
-```bash
-# Network
-SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_KEY
-MAINNET_RPC_URL=https://mainnet.infura.io/v3/YOUR_KEY
-
-# Keys (NEVER commit these!)
-PRIVATE_KEY=your_private_key_here
-ETHERSCAN_API_KEY=your_etherscan_key
-
-# Contract Addresses (after deployment)
-DID_CONTRACT=0x...
-REPUTATION_CONTRACT=0x...
-COMMUNITY_DAO=0x...
-PROPOSAL_REGISTRY=0x...
-ZK_SHARIA_DAO=0x...
-WAKAF_TREASURY=0x...
-CAMPAIGN_MANAGER=0x...
-VENDOR_REGISTRY=0x...
-NFT_RECEIPT_ISSUER=0x...
-PROTOCOL_ADMIN=0x...
-MULTISIG=0x...
-```
-
-Load environment variables:
-```bash
-source .env
-```
-
-## Troubleshooting
-
-### Build Errors
-
-```bash
-# Clean and rebuild
-forge clean
-forge build
-
-# Update dependencies
-forge update
-```
-
-### Test Failures
-
-```bash
-# Run with verbose output
-forge test -vvvv
-
-# Run specific test
-forge test --match-test testName -vvv
-```
-
-### Gas Issues
-
-```bash
-# Check gas usage
-forge test --gas-report
-
-# Optimize
-# Add optimizer settings to foundry.toml
-```
-
-### Deployment Issues
-
-```bash
-# Verify RPC connection
-cast block-number --rpc-url $RPC_URL
-
-# Check balance
-cast balance $YOUR_ADDRESS --rpc-url $RPC_URL
-
-# Estimate gas
-cast estimate <CONTRACT> <FUNCTION> <ARGS> --rpc-url $RPC_URL
-```
-
-## Useful Resources
-
-- [Foundry Book](https://book.getfoundry.sh/)
-- [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
-- [Solidity Documentation](https://docs.soliditylang.org/)
-
-## Next Steps
-
-1. ✅ Deploy contracts to testnet
-2. ✅ Verify contracts on Etherscan
-3. ✅ Set up frontend interfaces
-4. ✅ Integrate with IPFS
-5. ✅ Implement ZK proof verification
-6. ✅ Deploy indexer/subgraph
-7. ✅ Conduct security audit
-8. ✅ Deploy to mainnet
+| Command | Description |
+|---------|-------------|
+| `forge build` | Compile contracts |
+| `forge test -vvv` | Run tests verbose |
+| `forge test --gas-report` | Show gas usage |
+| `forge clean` | Clean build artifacts |
 
 ---
 
-For detailed documentation, see TAWF_README.md and ARCHITECTURE.md
+## Contract Interactions
+
+### Solana — Cast via Anchor TS SDK
+
+```typescript
+// Issue passport
+await program.methods
+  .issuePassport({ individual: {} }, "ipfs://meta")
+  .accountsStrict({ issuer: wallet, holder: addr, passport: pda })
+  .rpc()
+
+// Create proposal
+await program.methods
+  .createProposal(organizer, title, desc, goal, ...)
+  .accountsStrict({ signer: wallet, proposal: pda })
+  .rpc()
+
+// Cast vote
+await program.methods
+  .castVote({ support: {} }, 2)  // Tier 2 weight
+  .accountsStrict({ voter: wallet, proposal, vote: pda })
+  .signers([wallet])
+  .rpc()
+```
+
+### Ethereum — Cast via `cast`
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for full `cast` command reference.
+
+---
+
+## Troubleshooting
+
+### Solana
+
+```bash
+# Validator not responding
+curl -s http://localhost:8899 -X POST -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getHealth"}'
+
+# Insufficient balance
+solana airdrop 500
+
+# Program deploy authority mismatch
+# Check Anchor.toml wallet matches solana config
+```
+
+### Ethereum
+
+```bash
+# Clean + rebuild
+forge clean && forge build
+
+# RPC connection
+cast block-number --rpc-url $RPC_URL
+
+# Balance check
+cast balance $ADDRESS --rpc-url $RPC_URL
+```
+
+---
+
+## Resources
+
+- [ROADMAP.md](ROADMAP.md) — Phase timeline
+- [ARCHITECTURE.md](ARCHITECTURE.md) — System architecture
+- [MIGRATION_PLAN.md](MIGRATION_PLAN.md) — EVM → Solana migration plan
+- [Anchor Book](https://book.anchor-lang.com/)
+- [Foundry Book](https://book.getfoundry.sh/)

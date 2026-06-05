@@ -1,43 +1,54 @@
 # Tawf Governance System
 
-The governance backbone for the TAWF Sharia DApps Ecosystem. Provides identity (Tawf Passport), reputation, proposals, voting, milestone-based fund release, campaign pools, and Zakat-compliant escrow.
+Decentralized Sharia-compliant DAO for Zakat, Wakaf, and charitable giving.
 
-**Live on Ethereum Sepolia** — wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon).
+> **Ethereum (V1)**: Live on Sepolia — wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon)
+> **Solana (V2)**: Active migration — [branch `feat/solana-migration`](https://github.com/tawf-labs/tawf-gov/tree/feat/solana-migration)
 
-## Architecture
+---
 
+## Solana Migration (Active)
+
+All 11 Anchor programs built, deployed to localnet, and integration-tested (27/27 passing).
+
+| Layer | Programs | Status |
+|-------|----------|--------|
+| Identity | `tawf-passport`, `voting-nft` | ✅ 11 tests |
+| Governance | `proposal-manager`, `voting-manager`, `milestone-manager` | ✅ 9 tests |
+| Protocol | `pool-manager`, `zakat-escrow`, `wakaf-treasury`, `donation-receipt-nft` | ✅ 7 tests |
+| Dev | `idrx-mock` | ✅ 2 tests |
+
+**Frontend**: React 19 + Vite 6.2 + Tailwind CSS v4 + Solana wallet adapter
+
+**Stablecoin**: IDRX SPL (`idrxZcP8xiKkYk6XGD4uz1dxEYCWSgKDHqgjsBbwDur`) — Token-2022
+
+**[View full roadmap →](ROADMAP.md)**
+
+### Quick Start (Solana)
+
+```bash
+git checkout feat/solana-migration
+cd tawf-gov-solana
+
+# Start local validator
+solana-test-validator --reset --quiet
+
+# Deploy all 11 programs
+anchor deploy
+
+# Run 27 integration tests
+ANCHOR_PROVIDER_URL=http://localhost:8899 ANCHOR_WALLET=/tmp/chaos-wallet.json \
+  npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/*.ts'
+
+# Start frontend
+cd ../tawf-gov-frontend && npm run dev
 ```
-src/
-├── identity/
-│   ├── TawfPassport.sol       ERC-5192 soulbound — Muzakki, Mustahik, Organization, ShariaCouncil
-│   ├── TawfReputation.sol     Points-based reputation with history
-│   ├── ERC5192.sol            Minimal Soulbound NFT (Final, EIP-5192)
-│   └── IERC5192.sol           ERC-5192 interface
-├── governance/
-│   ├── ProposalManager.sol    Proposal lifecycle, KYC, campaign types, milestones
-│   ├── VotingManager.sol      Tiered NFT voting (Tier 1/2/3 based on participation)
-│   ├── MilestoneManager.sol   Sequential fund release with proof submission + voting
-│   └── ParticipationTracker.sol  Privacy-safe activity counts (no amounts stored)
-├── protocol/
-│   ├── PoolManager.sol        Campaign pool creation, fundraising, withdrawal
-│   ├── ZakatEscrowManager.sol Shafi'i-compliant Zakat escrow (30-day deadline, grace, redistribution)
-│   └── DonationReceiptNFT.sol Soulbound ERC-721 receipt per donation
-├── tokens/
-│   ├── MockIDRX.sol           Testnet ERC-20 stablecoin with faucet
-│   └── VotingNFT.sol          Soulbound voting power (Tier 1=1, Tier 2=2, Tier 3=3 votes)
-├── admin/
-│   ├── ProtocolAdmin.sol      Pause + admin controls
-│   └── TawfLabsMultisig.sol   2-of-N multisig wallet
-├── protocol/
-│   └── WakafTreasury.sol      Endowment fund management
-└── interfaces/
-    ├── ITawfPassport.sol
-    ├── ITawfReputation.sol
-    ├── IProposalManager.sol
-    └── IProtocolAdmin.sol
-```
 
-## Sepolia Deployment (V1 — 2026-05-29)
+---
+
+## Ethereum Version (V1 — Sepolia)
+
+### Deployed Contracts
 
 | Contract | Address |
 |----------|---------|
@@ -55,51 +66,34 @@ src/
 
 **Deploy script:** `script/DeployTawfSystem.s.sol` · Gas used: ~28.3M
 
-## Tawf Passport Types (ERC-5192)
+### Architecture (Ethereum)
 
-| Type | Who | Can do |
-|------|-----|--------|
-| **Muzakki** | Donor | Donate, generate ZK eligibility proofs |
-| **Mustahik** | Recipient | Receive zakat, encrypted off-chain metadata |
-| **Organization** | NGO/Charity | Create proposals, manage campaigns, withdraw funds |
-| **ShariaCouncil** | Islamic scholar | Review proposals, session-code auth (no wallet needed) |
-
-Soulbound via ERC-5192. Burn rights: holder can `renouncePassport()`, admin can `revokePassport()`.
-
-## Quick Start
-
-```bash
-git clone https://github.com/tawf-labs/tawf-gov.git
-cd tawf-gov/gov
-forge build
+```
+src/
+├── identity/
+│   ├── TawfPassport.sol       ERC-5192 soulbound
+│   ├── TawfReputation.sol     Points-based reputation
+│   └── ERC5192.sol            Minimal Soulbound NFT (Final)
+├── governance/
+│   ├── ProposalManager.sol    Proposal lifecycle, KYC, milestones
+│   ├── VotingManager.sol      Tiered NFT voting
+│   ├── MilestoneManager.sol   Sequential fund release
+│   └── ParticipationTracker.sol  Activity counts
+├── protocol/
+│   ├── PoolManager.sol        Campaign pools, fundraising
+│   ├── ZakatEscrowManager.sol Shafi'i-compliant Zakat escrow
+│   ├── WakafTreasury.sol      Endowment fund management
+│   └── DonationReceiptNFT.sol Soulbound ERC-721 receipt
+├── tokens/
+│   ├── MockIDRX.sol           Testnet ERC-20 stablecoin
+│   └── VotingNFT.sol          Soulbound voting power
+├── admin/
+│   ├── ProtocolAdmin.sol      Pause + admin controls
+│   └── TawfLabsMultisig.sol   2-of-N multisig
+└── interfaces/
 ```
 
-### Deploy
-
-```bash
-forge script script/DeployTawfSystem.s.sol \
-  --rpc-url sepolia --account <name> --broadcast
-```
-
-### Test
-
-```bash
-forge test
-```
-
-## Integration with zkt-hackathon
-
-The ZK layer ([zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon)) imports these contracts via forge submodule:
-
-```solidity
-import "@tawf-gov/governance/ProposalManager.sol";
-import "@tawf-gov/protocol/PoolManager.sol";
-// ... etc
-```
-
-ZKTCore acts as the orchestration layer, wiring ZK proof verification (Groth16/UltraHONK) and nullifier-based double-spend prevention on top of the DAO contracts provided by this repo.
-
-## Governance Parameters
+### Governance Parameters
 
 | Parameter | Default | Settable via |
 |-----------|---------|-------------|
@@ -108,6 +102,29 @@ ZKTCore acts as the orchestration layer, wiring ZK proof verification (Groth16/U
 | Pass threshold | 51% | `VotingManager.setPassThreshold()` |
 | Sharia quorum | 3 reviewers | `ShariaReviewManager.setShariaQuorum()` |
 | Zakat deadline | 30 days | Hardcoded in ZakatEscrowManager |
+
+### Integration with zkt-hackathon
+
+```solidity
+import "@tawf-gov/governance/ProposalManager.sol";
+import "@tawf-gov/protocol/PoolManager.sol";
+```
+
+ZKTCore acts as orchestration layer — Groth16/UltraHONK ZK proofs + nullifier double-spend prevention.
+
+---
+
+## Repository Structure
+
+```
+tawf-gov/
+├── gov/                    # Ethereum Solidity contracts (V1 — Sepolia)
+├── tawf-gov-solana/        # Solana Anchor programs (V2 — migration branch)
+├── tawf-gov-frontend/      # React 19 + Vite 6.2 frontend
+├── MIGRATION_PLAN.md       # Full migration plan (EVM → Solana)
+├── ROADMAP.md              # 5-phase timeline with status
+└── ARCHITECTURE.md         # System architecture docs
+```
 
 ## License
 
