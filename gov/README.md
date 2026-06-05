@@ -37,4 +37,4 @@ See [README.md](../README.md#ethereum-version-v1--sepolia) for full contract lis
 
 ## License
 
-MIT
+Apache 2.0

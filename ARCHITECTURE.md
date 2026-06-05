@@ -189,4 +189,4 @@ export ETHERSCAN_API_KEY=your_key
 
 ## License
 
-MIT
+Apache 2.0
