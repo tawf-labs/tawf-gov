@@ -79,7 +79,7 @@ pub mod pool_manager {
             to: ctx.accounts.pool_vault.to_account_info(),
             authority: ctx.accounts.donor.to_account_info(),
         };
-        let cpi_ctx = CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts);
+        let cpi_ctx = CpiContext::new(ctx.accounts.token_program.key(), cpi_accounts);
         token_interface::transfer_checked(cpi_ctx, amount, 6)?;
 
         pool.raised_amount = pool.raised_amount.checked_add(amount).unwrap();
@@ -118,7 +118,7 @@ pub mod pool_manager {
             authority: ctx.accounts.pool_vault.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             cpi_accounts,
             signer_seeds,
         );
@@ -137,10 +137,10 @@ pub struct CreatePool<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
     /// CHECK: proposal account, validated by program logic
-    pub proposal: AccountInfo<'info>,
+    pub proposal: UncheckedAccount<'info>,
     pub idrx_mint: InterfaceAccount<'info, Mint>,
     /// CHECK: organizer may not be a signer
-    pub organizer: AccountInfo<'info>,
+    pub organizer: UncheckedAccount<'info>,
     #[account(
         init,
         seeds = [b"pool", organizer.key().as_ref()],
@@ -164,7 +164,7 @@ pub struct Donate<'info> {
     pub donor_ata: InterfaceAccount<'info, TokenAccount>,
     /// CHECK: pool vault, a PDA holding donated IDRX
     #[account(mut)]
-    pub pool_vault: AccountInfo<'info>,
+    pub pool_vault: UncheckedAccount<'info>,
     #[account(
         init,
         seeds = [b"donor", pool.key().as_ref(), donor.key().as_ref()],
@@ -185,7 +185,7 @@ pub struct WithdrawFunds<'info> {
     pub idrx_mint: InterfaceAccount<'info, Mint>,
     /// CHECK: pool vault PDA
     #[account(mut)]
-    pub pool_vault: AccountInfo<'info>,
+    pub pool_vault: UncheckedAccount<'info>,
     #[account(mut)]
     pub organizer_ata: InterfaceAccount<'info, TokenAccount>,
     pub token_program: Interface<'info, TokenInterface>,

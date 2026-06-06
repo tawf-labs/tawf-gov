@@ -75,7 +75,7 @@ pub mod zakat_escrow {
             to: ctx.accounts.pool_vault.to_account_info(),
             authority: ctx.accounts.donor.to_account_info(),
         };
-        let cpi_ctx = CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts);
+        let cpi_ctx = CpiContext::new(ctx.accounts.token_program.key(), cpi_accounts);
         token_interface::transfer_checked(cpi_ctx, amount, 6)?;
 
         pool.raised_amount = pool.raised_amount.checked_add(amount).unwrap();
@@ -109,7 +109,7 @@ pub mod zakat_escrow {
             authority: ctx.accounts.pool_vault.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             cpi_accounts,
             signer_seeds,
         );
@@ -128,10 +128,10 @@ pub struct CreateZakatPool<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
     /// CHECK: proposal account
-    pub proposal: AccountInfo<'info>,
+    pub proposal: UncheckedAccount<'info>,
     pub idrx_mint: InterfaceAccount<'info, Mint>,
     /// CHECK: organizer
-    pub organizer: AccountInfo<'info>,
+    pub organizer: UncheckedAccount<'info>,
     #[account(
         init,
         seeds = [b"zakat", organizer.key().as_ref()],
@@ -155,7 +155,7 @@ pub struct DonateZakat<'info> {
     pub donor_ata: InterfaceAccount<'info, TokenAccount>,
     /// CHECK: pool vault
     #[account(mut)]
-    pub pool_vault: AccountInfo<'info>,
+    pub pool_vault: UncheckedAccount<'info>,
     pub token_program: Interface<'info, TokenInterface>,
 }
 
@@ -167,7 +167,7 @@ pub struct WithdrawZakat<'info> {
     pub idrx_mint: InterfaceAccount<'info, Mint>,
     /// CHECK: pool vault
     #[account(mut)]
-    pub pool_vault: AccountInfo<'info>,
+    pub pool_vault: UncheckedAccount<'info>,
     #[account(mut)]
     pub recipient_ata: InterfaceAccount<'info, TokenAccount>,
     pub token_program: Interface<'info, TokenInterface>,

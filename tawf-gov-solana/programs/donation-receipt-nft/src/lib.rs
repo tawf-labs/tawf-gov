@@ -64,7 +64,7 @@ pub struct MintReceipt<'info> {
     #[account(mut)]
     pub minter: Signer<'info>,
     /// CHECK: donor may not be a signer
-    pub donor: AccountInfo<'info>,
+    pub donor: UncheckedAccount<'info>,
     #[account(
         init,
         seeds = [b"receipt", donor.key().as_ref(), &pool_id.to_le_bytes()],

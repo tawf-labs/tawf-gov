@@ -24,7 +24,7 @@ pub mod idrx_mock {
             authority: ctx.accounts.mint_authority.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             cpi_accounts,
             signer_seeds,
         );
@@ -54,7 +54,7 @@ pub struct InitializeMint<'info> {
     /// Fixed PDA mint authority. Seeds = ["idrx-authority"].
     /// CHECK: PDA validated by seeds; owns the mint.
     #[account(seeds = [b"idrx-authority"], bump)]
-    pub mint_authority: AccountInfo<'info>,
+    pub mint_authority: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
     pub token_program: Interface<'info, TokenInterface>,
@@ -73,7 +73,7 @@ pub struct MintTokens<'info> {
     /// Fixed PDA mint authority.
     /// CHECK: PDA validated by seeds; signs via invoke_signed.
     #[account(seeds = [b"idrx-authority"], bump)]
-    pub mint_authority: AccountInfo<'info>,
+    pub mint_authority: UncheckedAccount<'info>,
 
     /// Recipient token account (must be ATA for `mint`).
     #[account(mut, token::mint = mint)]

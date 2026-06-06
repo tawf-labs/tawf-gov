@@ -87,7 +87,7 @@ pub struct CastVote<'info> {
     #[account(mut)]
     pub voter: Signer<'info>,
     /// CHECK: proposal account, validated by program logic
-    pub proposal: AccountInfo<'info>,
+    pub proposal: UncheckedAccount<'info>,
     #[account(
         init,
         seeds = [b"vote", proposal.key().as_ref(), voter.key().as_ref()],
@@ -103,7 +103,7 @@ pub struct CastVote<'info> {
 pub struct FinalizeVote<'info> {
     pub caller: Signer<'info>,
     /// CHECK: proposal account, validated by program logic
-    pub proposal: AccountInfo<'info>,
+    pub proposal: UncheckedAccount<'info>,
 }
 
 #[event]

@@ -194,7 +194,7 @@ pub struct MintVotingNft<'info> {
     #[account(mut)]
     pub minter: Signer<'info>,
     /// CHECK: holder may not be a signer
-    pub holder: AccountInfo<'info>,
+    pub holder: UncheckedAccount<'info>,
     #[account(
         init,
         seeds = [b"voting-nft", holder.key().as_ref()],

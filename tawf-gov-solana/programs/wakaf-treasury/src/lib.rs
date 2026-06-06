@@ -85,7 +85,7 @@ pub mod wakaf_treasury {
             authority: ctx.accounts.treasury_vault.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             cpi_accounts,
             signer_seeds,
         );
@@ -125,7 +125,7 @@ pub struct CreateAllocation<'info> {
     )]
     pub treasury: Account<'info, Treasury>,
     /// CHECK: recipient account
-    pub recipient: AccountInfo<'info>,
+    pub recipient: UncheckedAccount<'info>,
     #[account(
         init,
         seeds = [b"allocation", id.to_le_bytes().as_ref()],
@@ -150,7 +150,7 @@ pub struct ExecuteAllocation<'info> {
     pub idrx_mint: InterfaceAccount<'info, Mint>,
     /// CHECK: treasury vault PDA
     #[account(mut)]
-    pub treasury_vault: AccountInfo<'info>,
+    pub treasury_vault: UncheckedAccount<'info>,
     #[account(mut)]
     pub recipient_ata: InterfaceAccount<'info, TokenAccount>,
     #[account(mut)]
