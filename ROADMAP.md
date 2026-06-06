@@ -44,6 +44,18 @@ Milestone: Fundraising, Zakat escrow, treasury management
 
 ---
 
+## ✅ Phase 3.5: Infrastructure Upgrade (Complete)
+
+| Task | Status |
+|------|--------|
+| Upgrade Anchor 0.31.0 → 1.0.2 | ✅ |
+| Migrate tests @coral-xyz/anchor → @anchor-lang/core | ✅ |
+| Add ShariaReviewManager program | ✅ |
+| Pluggable ZK/Arcium verifier interface | ✅ |
+| All 12 programs build + 27 tests passing | ✅ |
+
+---
+
 ## 🚧 Phase 4: Integration & Frontend (Weeks 11–13)
 
 | Task | Status |
