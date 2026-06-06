@@ -1,5 +1,5 @@
-import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
+import * as anchor from "@anchor-lang/core";
+import { Program } from "@anchor-lang/core";
 import { DonationReceiptNft } from "../target/types/donation_receipt_nft";
 import { PublicKey } from "@solana/web3.js";
 import { expect } from "chai";
