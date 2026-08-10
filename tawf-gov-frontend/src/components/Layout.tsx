@@ -12,6 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { label: 'Manifesto', href: '#manifesto' },
     { label: 'Programs', href: '#programs' },
     { label: 'Governance', href: '#governance' },
+    { label: 'Glossary', href: '#glossary' },
     { label: 'Docs', href: '#docs' },
   ]
 

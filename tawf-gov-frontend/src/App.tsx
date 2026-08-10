@@ -7,6 +7,7 @@ import Landing from './components/Landing'
 import Manifesto from './components/Manifesto'
 import Donate from './components/Donate'
 import Governance from './components/Governance'
+import Glossary from './components/Glossary'
 import './index.css'
 import '@solana/wallet-adapter-react-ui/styles.css'
 
@@ -24,6 +25,7 @@ export default function App() {
             <Manifesto />
             <Donate />
             <Governance />
+            <Glossary />
           </Layout>
         </WalletModalProvider>
       </WalletProvider>
