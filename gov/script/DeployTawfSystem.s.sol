@@ -41,7 +41,7 @@ contract DeployTawfSystem is Script {
         PoolManager poolMgr = new PoolManager(address(pm), address(idrx), address(receiptNFT));
         ZakatEscrowManager escrow = new ZakatEscrowManager(address(pm), address(idrx), address(receiptNFT));
 
-        // 5. Role grants — ZKTCore gets all sub-contract roles
+        // 5. Role grants. ZKTCore gets all sub-contract roles
         // (ZKTCore will be deployed separately by zkt-hackathon)
         // Grant deployer temporary admin roles for setup
         pm.grantRole(pm.ORGANIZER_ROLE(), deployer);

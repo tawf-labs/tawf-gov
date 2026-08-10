@@ -2,8 +2,8 @@
 
 Decentralized Sharia-compliant DAO for Zakat, Wakaf, and charitable giving.
 
-> **Ethereum (V1)**: Live on Sepolia — wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon)
-> **Solana (V2)**: Active migration — [branch `feat/solana-migration`](https://github.com/tawf-labs/tawf-gov/tree/feat/solana-migration)
+> **Ethereum (V1)**: Live on Sepolia, wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon)
+> **Solana (V2)**: Active migration, [branch `feat/solana-migration`](https://github.com/tawf-labs/tawf-gov/tree/feat/solana-migration)
 
 ---
 
@@ -20,7 +20,7 @@ All 11 Anchor programs built, deployed to localnet, and integration-tested (27/2
 
 **Frontend**: React 19 + Vite 6.2 + Tailwind CSS v4 + Solana wallet adapter
 
-**Stablecoin**: IDRX SPL (`idrxZcP8xiKkYk6XGD4uz1dxEYCWSgKDHqgjsBbwDur`) — Token-2022
+**Stablecoin**: IDRX SPL (`idrxZcP8xiKkYk6XGD4uz1dxEYCWSgKDHqgjsBbwDur`), Token-2022
 
 **[View full roadmap →](ROADMAP.md)**
 
@@ -46,7 +46,7 @@ cd ../tawf-gov-frontend && npm run dev
 
 ---
 
-## Ethereum Version (V1 — Sepolia)
+## Ethereum Version (V1: Sepolia)
 
 ### Deployed Contracts
 
@@ -110,7 +110,7 @@ import "@tawf-gov/governance/ProposalManager.sol";
 import "@tawf-gov/protocol/PoolManager.sol";
 ```
 
-ZKTCore acts as orchestration layer — Groth16/UltraHONK ZK proofs + nullifier double-spend prevention.
+ZKTCore acts as orchestration layer, Groth16/UltraHONK ZK proofs + nullifier double-spend prevention.
 
 ---
 
@@ -118,8 +118,8 @@ ZKTCore acts as orchestration layer — Groth16/UltraHONK ZK proofs + nullifier 
 
 ```
 tawf-gov/
-├── gov/                    # Ethereum Solidity contracts (V1 — Sepolia)
-├── tawf-gov-solana/        # Solana Anchor programs (V2 — migration branch)
+├── gov/                    # Ethereum Solidity contracts (V1, Sepolia)
+├── tawf-gov-solana/        # Solana Anchor programs (V2, migration branch)
 ├── tawf-gov-frontend/      # React 19 + Vite 6.2 frontend
 ├── MIGRATION_PLAN.md       # Full migration plan (EVM → Solana)
 ├── ROADMAP.md              # 5-phase timeline with status
@@ -128,4 +128,4 @@ tawf-gov/
 
 ## License
 
-Apache 2.0 — see LICENSE.
+Apache 2.0, see LICENSE.

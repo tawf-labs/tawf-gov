@@ -1,13 +1,13 @@
-# Tawf Foundation — Solana Migration Roadmap
+# Tawf Foundation: Solana Migration Roadmap
 
 > **Phase**: MVP Complete (All 11 programs built, deployed, tested)
 > **Branch**: `feat/solana-migration`
 > **Timeline**: ~14 weeks total
-> **Status**: ✅ Phase 1–3 complete
+> **Status**: ✅ Phase 1-3 complete
 
 ---
 
-## ✅ Phase 1: Identity Layer (Weeks 1–3) ✓
+## ✅ Phase 1: Identity Layer (Weeks 1-3) ✓
 
 | Program | Status | Tests |
 |---------|--------|-------|
@@ -18,7 +18,7 @@ Milestone: Soulbound identity & tiered voting credentials
 
 ---
 
-## ✅ Phase 2: Governance Layer (Weeks 4–6) ✓
+## ✅ Phase 2: Governance Layer (Weeks 4-6) ✓
 
 | Program | Status | Tests |
 |---------|--------|-------|
@@ -30,7 +30,7 @@ Milestone: Full proposal lifecycle with tier-weighted voting
 
 ---
 
-## ✅ Phase 3: Protocol Layer (Weeks 7–10) ✓
+## ✅ Phase 3: Protocol Layer (Weeks 7-10) ✓
 
 | Program | Status | Tests |
 |---------|--------|-------|
@@ -56,7 +56,7 @@ Milestone: Fundraising, Zakat escrow, treasury management
 
 ---
 
-## 🚧 Phase 4: Integration & Frontend (Weeks 11–13)
+## 🚧 Phase 4: Integration & Frontend (Weeks 11-13)
 
 | Task | Status |
 |------|--------|
@@ -71,7 +71,7 @@ Milestone: Fundraising, Zakat escrow, treasury management
 
 ---
 
-## 🔮 Phase 5: Production Polish (Weeks 14–16)
+## 🔮 Phase 5: Production Polish (Weeks 14-16)
 
 | Task | Status |
 |------|--------|

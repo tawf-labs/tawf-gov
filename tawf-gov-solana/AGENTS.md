@@ -1,4 +1,4 @@
-# AGENTS.md — Tawf-Gov
+# AGENTS.md: Tawf-Gov
 
 > Sharia-compliant DAO for Zakat/Wakaf on Solana. 12 Anchor programs, 27 tests, React/Vite frontend.
 
@@ -39,7 +39,7 @@ cd tawf-gov-frontend && npm run dev
 | 11 | `sharia-review-manager` | 0* | Pluggable ZK/Arcium verifier |
 | 12 | `participation-tracker` | 3 | Privacy-safe participation metrics |
 
-*Sharia-review-manager has no standalone tests yet — tested via integration.
+*Sharia-review-manager has no standalone tests yet, tested via integration.
 
 ## Toolchain
 
@@ -54,9 +54,9 @@ cd tawf-gov-frontend && npm run dev
 
 ## Architecture Rules
 
-1. **All accounts are PDA-derived** — never use raw keypairs for state storage
-2. **Token-2022** via `anchor_spl::token_interface` — NOT legacy SPL Token
-3. **Program ID source of truth**: `target/deploy/*-keypair.json` — sync with `anchor keys sync`
+1. **All accounts are PDA-derived**: never use raw keypairs for state storage
+2. **Token-2022** via `anchor_spl::token_interface`: NOT legacy SPL Token
+3. **Program ID source of truth**: `target/deploy/*-keypair.json`: sync with `anchor keys sync`
 4. **Anchor 1.0 changes from 0.31**:
    - `AccountInfo<'info>` → `UncheckedAccount<'info>` (deprecated in 1.0)
    - `CpiContext::new(program.to_account_info())` → `CpiContext::new(program.key())`
@@ -64,7 +64,7 @@ cd tawf-gov-frontend && npm run dev
    - Test imports: `@anchor-lang/core` (NOT `@coral-xyz/anchor`)
 5. **Wallet path**: `~/.config/solana/id.json` (NOT `/tmp/chaos-wallet.json`)
 6. **NO emojis in code, logs, or events** unless explicitly requested
-7. **Bounded Vec sizes** — credentials max 8, milestones max 10, strings <10KB
+7. **Bounded Vec sizes**: credentials max 8, milestones max 10, strings <10KB
 
 ## File Layout
 
@@ -85,10 +85,10 @@ tawf-gov/
 
 ## Key Decisions
 
-- **Solana** over Ethereum — IDRX native, Superteam Indonesia, lower costs
-- **No Next.js** — user rejected; React 19 + Vite 6.2 instead
+- **Solana** over Ethereum, IDRX native, Superteam Indonesia, lower costs
+- **No Next.js**: user rejected; React 19 + Vite 6.2 instead
 - **Squads v4** for production multisig (do NOT build custom multisig)
-- **ShariaReviewManager** is a shared standard — pluggable: `verifier: Option<Pubkey>`
+- **ShariaReviewManager** is a shared standard, pluggable: `verifier: Option<Pubkey>`
   - `None` → simple on-chain vote/multisig
   - `Some(Pubkey)` → ZK/Arcium proof required
 - **USDC supported** alongside IDRX from day 1
@@ -107,7 +107,7 @@ ANCHOR_PROVIDER_URL=http://localhost:8899 ANCHOR_WALLET=~/.config/solana/id.json
 npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/proposal-manager.ts'
 ```
 
-## Program IDs (localnet — will change per deploy)
+## Program IDs (localnet: will change per deploy)
 
 | Program | Localnet ID |
 |---------|------------|
@@ -125,14 +125,14 @@ npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/proposal-manager.ts'
 
 ## Gotchas
 
-1. **Validator needs `--reset` on first start** — existing ledger may be from different genesis
-2. **Wallet at `/tmp/` gets wiped** — always copy to `~/.config/solana/id.json` after keygen
-3. **`anchor deploy` stale** — use `anchor program deploy` in Anchor 1.0+
-4. **idl-build warnings** on SPL programs — harmless, from `anchor-spl` feature flag
+1. **Validator needs `--reset` on first start**: existing ledger may be from different genesis
+2. **Wallet at `/tmp/` gets wiped**: always copy to `~/.config/solana/id.json` after keygen
+3. **`anchor deploy` stale**: use `anchor program deploy` in Anchor 1.0+
+4. **idl-build warnings** on SPL programs, harmless, from `anchor-spl` feature flag
 5. **Box-wrapping** required for MXE/Cluster/CompDef accounts on queue path (Arcium only)
-6. **`derive_mempool_pda!(mxe_account)` NO ErrorCode arg** — v0.10.x removed second arg
+6. **`derive_mempool_pda!(mxe_account)` NO ErrorCode arg**: v0.10.x removed second arg
 
 ## Related Repos
 
-- **zkt-hackathon** (`feat/solana-rewrite`) — confidential zakat layer using Arcium MPC + zkt-core CPI facade
-- **tawf-gov** Ethereum original (`main`) — 16 Solidity contracts on Sepolia (reference only)
+- **zkt-hackathon** (`feat/solana-rewrite`), confidential zakat layer using Arcium MPC + zkt-core CPI facade
+- **tawf-gov** Ethereum original (`main`), 16 Solidity contracts on Sepolia (reference only)

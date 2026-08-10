@@ -9,7 +9,7 @@ export default function Governance() {
   const proposals = [
     { id: 1, title: 'Mosque Renovation Fund', status: 'Voting', votes: { for: 80, against: 10 }, deadline: '2d left' },
     { id: 2, title: 'Community Water Well', status: 'Completed', votes: { for: 120, against: 5 }, deadline: 'Passed' },
-    { id: 3, title: 'Education Scholarship', status: 'Draft', votes: { for: 0, against: 0 }, deadline: '—' },
+    { id: 3, title: 'Education Scholarship', status: 'Draft', votes: { for: 0, against: 0 }, deadline: 'n/a' },
   ]
 
   return (

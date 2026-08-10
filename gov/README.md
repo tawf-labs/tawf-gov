@@ -1,4 +1,4 @@
-# Tawf Governance — Ethereum Contracts (V1)
+# Tawf Governance: Ethereum Contracts (V1)
 
 This directory contains the original Ethereum Solidity contracts for the Tawf Governance System, deployed on Sepolia testnet.
 

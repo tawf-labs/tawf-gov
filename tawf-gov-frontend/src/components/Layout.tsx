@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import tawfLogo from '../assets/tawf-logo.png'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -18,8 +19,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-50 bg-tawf-sand/80 backdrop-blur-sm border-b border-tawf-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <a href="/" className="font-heading text-2xl font-bold text-tawf-green">
-            Tawf
+          <a href="/" className="flex items-center">
+            <img src={tawfLogo} alt="Tawf" className="h-14 w-auto invert" />
           </a>
 
           <nav className="hidden md:flex items-center space-x-8">
@@ -69,7 +70,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-1">{children}</main>
 
       <footer className="bg-tawf-green text-white py-8 mt-16">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 flex flex-col items-center text-center">
+          <img src={tawfLogo} alt="Tawf" className="h-16 w-auto" />
           <p className="text-sm">
             © {new Date().getFullYear()} Tawf Foundation. Built on Solana.
           </p>

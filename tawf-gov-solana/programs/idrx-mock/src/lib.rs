@@ -3,7 +3,7 @@ use anchor_spl::token_interface::{self, Mint, MintTo, TokenAccount, TokenInterfa
 
 declare_id!("84qrLb5tLKCFUXJ1NDhKvp73dLLEi3e5LURZ9cDUEjom");
 
-/// IDRX Mock Token — dev-only SPL token simulating IDRX (6 decimals).
+/// IDRX Mock Token. Dev-only SPL token simulating IDRX (6 decimals).
 /// Authority is a fixed PDA so any wallet can call `mint_to` for testing.
 #[program]
 pub mod idrx_mock {
@@ -66,7 +66,7 @@ pub struct MintTokens<'info> {
     /// Any signer can invoke mint_to; authority is the PDA.
     pub authority: Signer<'info>,
 
-    /// IDRX mock mint. Mutable — supply increases.
+    /// IDRX mock mint. Mutable, so supply increases.
     #[account(mut, seeds = [b"idrx-mint"], bump)]
     pub mint: InterfaceAccount<'info, Mint>,
 

@@ -1,4 +1,4 @@
-# Tawf Governance System — Quick Start Guide
+# Tawf Governance System: Quick Start Guide
 
 ## Solana Migration (Active)
 
@@ -62,7 +62,7 @@ npm run dev
 
 ---
 
-## Ethereum Version (V1 — Sepolia)
+## Ethereum Version (V1: Sepolia)
 
 ### Prerequisites
 
@@ -121,7 +121,7 @@ forge script script/DeployTawfSystem.s.sol:DeployTawfSystem \
 
 ## Contract Interactions
 
-### Solana — Cast via Anchor TS SDK
+### Solana: Cast via Anchor TS SDK
 
 ```typescript
 // Issue passport
@@ -144,7 +144,7 @@ await program.methods
   .rpc()
 ```
 
-### Ethereum — Cast via `cast`
+### Ethereum: Cast via `cast`
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for full `cast` command reference.
 
@@ -183,8 +183,8 @@ cast balance $ADDRESS --rpc-url $RPC_URL
 
 ## Resources
 
-- [ROADMAP.md](ROADMAP.md) — Phase timeline
-- [ARCHITECTURE.md](ARCHITECTURE.md) — System architecture
-- [MIGRATION_PLAN.md](MIGRATION_PLAN.md) — EVM → Solana migration plan
+- [ROADMAP.md](ROADMAP.md): Phase timeline
+- [ARCHITECTURE.md](ARCHITECTURE.md): System architecture
+- [MIGRATION_PLAN.md](MIGRATION_PLAN.md): EVM → Solana migration plan
 - [Anchor Book](https://book.anchor-lang.com/)
 - [Foundry Book](https://book.getfoundry.sh/)

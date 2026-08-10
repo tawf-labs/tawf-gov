@@ -1,10 +1,10 @@
-# Solana DAO Governance — EVM → Solana Mapping
+# Solana DAO Governance: EVM → Solana Mapping
 
 > Research compiled June 2025. Covers Anchor 1.0.x, SPL Governance, Token-2022, and Islamic finance DAOs on Solana.
 
 ---
 
-## 1. Anchor Framework — Current State
+## 1. Anchor Framework: Current State
 
 ### Version
 
@@ -22,7 +22,7 @@ Install via AVM: `avm install latest && avm use latest`
 
 ### 1.1 Account Structures (PDA Derivation)
 
-**Pattern:** Deterministic addresses from seeds + program ID. No private key — program signs via `invoke_signed`.
+**Pattern:** Deterministic addresses from seeds + program ID. No private key, program signs via `invoke_signed`.
 
 ```rust
 #[derive(Accounts)]
@@ -191,11 +191,11 @@ pub interface TransferTokens<'info> {
 ```
 
 **Token-2022 Extensions relevant to DAOs:**
-- `non-transferable` — soulbound tokens (for membership/credentials)
-- `transfer-fee` — automatic fee on transfer
-- `default-account-state` — frozen by default (requires unfreeze)
-- `metadata` — on-chain metadata (no Metaplex needed)
-- `permanent-delegate` — program can always transfer
+- `non-transferable`: soulbound tokens (for membership/credentials)
+- `transfer-fee`: automatic fee on transfer
+- `default-account-state`: frozen by default (requires unfreeze)
+- `metadata`: on-chain metadata (no Metaplex needed)
+- `permanent-delegate`: program can always transfer
 
 ---
 
@@ -393,7 +393,7 @@ For data-heavy operations, use **write-account helper program** or **state compr
 
 ---
 
-## 4. DAO Governance on Solana — Existing Projects
+## 4. DAO Governance on Solana: Existing Projects
 
 ### 4.1 SPL Governance (Realms)
 
@@ -416,11 +416,11 @@ Realm
 ```
 
 **Key accounts (on-chain):**
-- **Realm** — top-level container for a DAO
-- **Governance** — config per governed asset (token, program, mint)
-- **Proposal** — individual governance proposal
-- **TokenOwnerRecord** — tracks a voter's token balance & votes
-- **NativeTreasury** — DAO's SOL wallet (PDA)
+- **Realm**: top-level container for a DAO
+- **Governance**: config per governed asset (token, program, mint)
+- **Proposal**: individual governance proposal
+- **TokenOwnerRecord**: tracks a voter's token balance & votes
+- **NativeTreasury**: DAO's SOL wallet (PDA)
 
 **Voting flow:**
 1. Create proposal (requires token holdings above threshold)
@@ -454,9 +454,9 @@ let cpi_accounts = governance::cpi::accounts::CreateProposal {
 ### 4.3 Tribeca
 
 Alternative governance framework with:
-- **Governor** — proposal tracking and voting
-- **Goki Smart Wallet** — multisig execution
-- **Electorate** — customizable voting mechanism
+- **Governor**: proposal tracking and voting
+- **Goki Smart Wallet**: multisig execution
+- **Electorate**: customizable voting mechanism
 
 ### 4.4 Other Governance Tools
 

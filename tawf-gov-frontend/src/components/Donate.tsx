@@ -24,8 +24,8 @@ export default function Donate() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          Your Zakat, Wakaf, or Sadaqah donations are verified on-chain
-          — transparent and Sharia-compliant.
+          Your Zakat, Wakaf, or Sadaqah donations are verified on-chain,
+          transparent and Sharia-compliant.
         </motion.p>
         <motion.div
           className="flex flex-col items-center gap-4"

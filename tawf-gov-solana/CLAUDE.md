@@ -63,7 +63,7 @@ solana airdrop 500
 - IDRX as Token-2022 (forward-compatible with SPL Token)
 - 1 passport/wallet, 1 voting-nft/wallet, bounded vecs for credentials
 - Proposals store milestones inline (max 10, bounded sizes <10KB)
-- ShariaReviewManager: pluggable verifier — `None` = simple vote, `Some(Pubkey)` = ZK proof required
+- ShariaReviewManager: pluggable verifier, `None` = simple vote, `Some(Pubkey)` = ZK proof required
 
 ## Program IDs (localnet)
 | Program | ID |

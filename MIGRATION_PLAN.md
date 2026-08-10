@@ -6,7 +6,7 @@
 > **Stablecoin**: IDRX SPL `idrxZcP8xiKkYk6XGD4uz1dxEYCWSgKDHqgjsBbwDur`
 > **Multisig**: Squads v4
 > **Frontend**: React 19 + Vite 6.2 + Tailwind CSS v4 (scaffolded)
-> **Validator**: Localnet (Solana CLI 3.1.12) — wallet funded 500M SOL
+> **Validator**: Localnet (Solana CLI 3.1.12), wallet funded 500M SOL
 
 ---
 
@@ -111,7 +111,7 @@
 
 ### 3.1 Identity Programs
 
-#### `tawf_passport` (replaces `TawfPassport.sol` — 178 lines)
+#### `tawf_passport` (replaces `TawfPassport.sol`: 178 lines)
 
 ```rust
 #[account]
@@ -150,7 +150,7 @@ pub enum PassportType {
 
 ---
 
-#### `voting_nft` (replaces `VotingNFT.sol` — 147 lines)
+#### `voting_nft` (replaces `VotingNFT.sol`: 147 lines)
 
 ```rust
 #[account]
@@ -163,8 +163,8 @@ pub struct VotingNFT {
     pub bump: u8,
 }
 
-// PDA: ["voting-nft", owner.key().as_ref()] — ensures 1 wallet = 1 NFT
-// PDA: ["voting-nft-mint", owner.key().as_ref()] — mint PDA
+// PDA: ["voting-nft", owner.key().as_ref()], ensures 1 wallet = 1 NFT
+// PDA: ["voting-nft-mint", owner.key().as_ref()], mint PDA
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
 pub enum VotingTier {
@@ -193,7 +193,7 @@ impl VotingTier {
 
 ### 3.2 Governance Programs
 
-#### `proposal_manager` (replaces `ProposalManager.sol` — 307 lines)
+#### `proposal_manager` (replaces `ProposalManager.sol`: 307 lines)
 
 ```rust
 #[account]
@@ -242,7 +242,7 @@ pub enum ProposalStatus {
 
 ---
 
-#### `voting_manager` (replaces `VotingManager.sol` — 117 lines)
+#### `voting_manager` (replaces `VotingManager.sol`: 117 lines)
 
 ```rust
 #[account]
@@ -267,11 +267,11 @@ pub struct VotingConfig {
 // PDA: ["voting-config"]
 ```
 
-**Key logic**: Same as Solidity — read `ProposalManager` via CPI, get tier weight from `VotingNFT`, store vote, finalize with quorum check.
+**Key logic**: Same as Solidity, read `ProposalManager` via CPI, get tier weight from `VotingNFT`, store vote, finalize with quorum check.
 
 ---
 
-#### `milestone_manager` (replaces `MilestoneManager.sol` — 166 lines)
+#### `milestone_manager` (replaces `MilestoneManager.sol`: 166 lines)
 
 ```rust
 #[account]
@@ -298,7 +298,7 @@ pub enum MilestoneStatus {
 
 ---
 
-#### `participation_tracker` (replaces `ParticipationTracker.sol` — 133 lines)
+#### `participation_tracker` (replaces `ParticipationTracker.sol`: 133 lines)
 
 ```rust
 #[account]
@@ -326,7 +326,7 @@ pub struct ProposalParticipation {
 
 ### 3.3 Protocol Programs
 
-#### `pool_manager` (replaces `PoolManager.sol` — 340 lines)
+#### `pool_manager` (replaces `PoolManager.sol`: 340 lines)
 
 ```rust
 #[account]
@@ -359,7 +359,7 @@ pub struct DonationRecord {
 
 ---
 
-#### `zakat_escrow` (replaces `ZakatEscrowManager.sol` — 746 lines)
+#### `zakat_escrow` (replaces `ZakatEscrowManager.sol`: 746 lines)
 
 ```rust
 #[account]
@@ -405,7 +405,7 @@ pub struct ZakatDistribution {
 
 ---
 
-#### `wakaf_treasury` (replaces `WakafTreasury.sol` — 170 lines)
+#### `wakaf_treasury` (replaces `WakafTreasury.sol`: 170 lines)
 
 ```rust
 #[account]
@@ -434,7 +434,7 @@ pub struct WakafRecord {
 
 ---
 
-#### `donation_receipt_nft` (replaces `DonationReceiptNFT.sol` — 191 lines)
+#### `donation_receipt_nft` (replaces `DonationReceiptNFT.sol`: 191 lines)
 
 ```rust
 // Using Metaplex Token Metadata program
@@ -460,7 +460,7 @@ pub struct DonationReceipt {
 
 ### 3.4 Admin Layer
 
-#### Squads v4 (replaces `TawfLabsMultisig.sol` — 200 lines)
+#### Squads v4 (replaces `TawfLabsMultisig.sol`: 200 lines)
 
 | Feature | Solidity | Solana (Squads v4) |
 |---------|----------|---------------------|
@@ -634,7 +634,7 @@ let idrx_mint = Pubkey::from_str("idrxZcP8xiKkYk6XGD4uz1dxEYCWSgKDHqgjsBbwDur")?
 ### 6.3 Read-Only Accounts (Copilot/Remaining Accounts)
 
 ```rust
-// For VotingManager.castVote — pass as remaining_accounts
+// For VotingManager.castVote, pass as remaining_accounts
 // because Anchor CPI requires explicit account passing
 
 #[derive(Accounts)]
@@ -930,12 +930,12 @@ export function PassportPage() {
 
 ### Pre-Migration
 
-- [x] Solana CLI 3.x installed (`solana --version`) — v3.1.12
-- [x] Rust 1.79-1.85 installed (`rustc --version`) — v1.94.1
-- [x] Anchor 0.31.x installed (`anchor --version`) — v0.31.0
-- [x] Node.js ≥17 installed (`node --version`) — v22.22.2
+- [x] Solana CLI 3.x installed (`solana --version`), v3.1.12
+- [x] Rust 1.79-1.85 installed (`rustc --version`), v1.94.1
+- [x] Anchor 0.31.x installed (`anchor --version`), v0.31.0
+- [x] Node.js ≥17 installed (`node --version`), v22.22.2
 - [x] Solana CLI configured for localnet (`solana config get`)
-- [x] Deployer wallet funded (`solana balance`) — 500M SOL
+- [x] Deployer wallet funded (`solana balance`), 500M SOL
 - [x] IDRX mint verified (`idrxZcP8xiKkYk6XGD4uz1dxEYCWSgKDHqgjsBbwDur`)
 
 ### Program Development
@@ -943,35 +943,35 @@ export function PassportPage() {
 - [x] Scaffold Anchor workspace (`anchor init tawf-gov-solana`)
 - [x] Add `anchor-spl` dependency for IDRX integration (Token-2022)
 - [ ] Add `metaplex-token-metadata` dependency for NFT (future)
-- [x] `tawf-passport` program: issue, verify, revoke, credentials — 5 tests
-- [x] `voting-nft` program: mint soulbound, tier assignment, auto-upgrade — 6 tests
-- [x] `proposal-manager` program: create, update status, voting periods — 5 tests
-- [x] `voting-manager` program: cast vote, finalize, quorum/threshold — 2 tests
-- [x] `milestone-manager` program: approve, reject, release — 2 tests
+- [x] `tawf-passport` program: issue, verify, revoke, credentials, 5 tests
+- [x] `voting-nft` program: mint soulbound, tier assignment, auto-upgrade, 6 tests
+- [x] `proposal-manager` program: create, update status, voting periods, 5 tests
+- [x] `voting-manager` program: cast vote, finalize, quorum/threshold, 2 tests
+- [x] `milestone-manager` program: approve, reject, release, 2 tests
 - [ ] `participation-tracker` program: covered by voting-nft metrics
-- [x] `pool-manager` program: create pool, donate IDRX — 1 test
-- [x] `zakat-escrow` program: escrow lifecycle, deadline enforcement — 1 test
-- [x] `wakaf-treasury` program: treasury, allocations, releases — 2 tests
-- [x] `donation-receipt-nft` program: mint receipt accounts — 1 test
+- [x] `pool-manager` program: create pool, donate IDRX, 1 test
+- [x] `zakat-escrow` program: escrow lifecycle, deadline enforcement, 1 test
+- [x] `wakaf-treasury` program: treasury, allocations, releases, 2 tests
+- [x] `donation-receipt-nft` program: mint receipt accounts, 1 test
 
 ### Testing
 
 - [x] Integration tests: 27 tests across all 11 programs
-- [ ] Unit tests: LiteSVM (200+ tests) — future
-- [ ] Instruction tests: Mollusk (50+ tests) — future
-- [ ] E2E tests: Playwright (full user journey) — future
+- [ ] Unit tests: LiteSVM (200+ tests), future
+- [ ] Instruction tests: Mollusk (50+ tests), future
+- [ ] E2E tests: Playwright (full user journey), future
 - [x] CPI security: `anchor_spl::token_interface` for all transfers
-- [ ] Compute unit profiling: optimize hot paths — future
+- [ ] Compute unit profiling: optimize hot paths, future
 - [x] Edge cases: zero amounts, overflow checked, access control
 
 ### Deployment
 
 - [ ] Devnet deploy script (`scripts/deploy-devnet.sh`)
 - [ ] IDRX SPL token integration verified (on localnet)
-- [ ] Squads v4 multisig initialized — future
-- [ ] Admin roles granted via Squads — future
+- [ ] Squads v4 multisig initialized, future
+- [ ] Admin roles granted via Squads, future
 - [ ] Devnet smoke test: create proposal → vote → execute
-- [ ] Frontend connected to devnet RPC — currently localnet
+- [ ] Frontend connected to devnet RPC, currently localnet
 
 ### Security
 

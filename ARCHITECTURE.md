@@ -1,6 +1,6 @@
-# Tawf Governance System — Architecture
+# Tawf Governance System: Architecture
 
-## Solana Architecture (V2 — Active Migration)
+## Solana Architecture (V2: Active Migration)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -48,9 +48,9 @@
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │                    CROSS-CUTTING                          │   │
 │  │  ┌──────────────────────────────────────────────────┐    │   │
-│  │  │ IDRX SPL (Token-2022) — all programs use CPI     │    │   │
+│  │  │ IDRX SPL (Token-2022), all programs use CPI      │    │   │
 │  │  │ Squads v4 multisig (future integration)           │    │   │
-│  │  │ All accounts PDA-derived — no direct key owners  │    │   │
+│  │  │ All accounts PDA-derived, no direct key owners   │    │   │
 │  │  └──────────────────────────────────────────────────┘    │   │
 │  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
@@ -83,14 +83,14 @@ All programs read each other's accounts directly (same Solana runtime). No compl
 
 ---
 
-## Ethereum Architecture (V1 — Sepolia)
+## Ethereum Architecture (V1: Sepolia)
 
 ### System Components
 
-1. **Community dApp** — Governance participation
-2. **Vendor/Organizer Portal** — Campaign creation and management
-3. **Sharia Council Interface** — Islamic compliance review
-4. **Tawf Labs Admin Console** — System administration
+1. **Community dApp**: Governance participation
+2. **Vendor/Organizer Portal**: Campaign creation and management
+3. **Sharia Council Interface**: Islamic compliance review
+4. **Tawf Labs Admin Console**: System administration
 
 ### Flow Diagrams
 
@@ -127,12 +127,12 @@ PoolManager → withdraw funds
 
 ### Security Mechanisms (Ethereum)
 
-1. **RBAC** — Admin, Issuer, Executor, Council roles
-2. **Multisig** — M-of-N for critical ops (2-of-N)
-3. **Pausability** — Emergency pause
-4. **Soulbound** — Non-transferable NFTs (ERC-5192)
-5. **Time locks** — Voting delays, campaign durations
-6. **ZK proofs** — Sharia council privacy (Groth16/UltraHONK)
+1. **RBAC**: Admin, Issuer, Executor, Council roles
+2. **Multisig**: M-of-N for critical ops (2-of-N)
+3. **Pausability**: Emergency pause
+4. **Soulbound**: Non-transferable NFTs (ERC-5192)
+5. **Time locks**: Voting delays, campaign durations
+6. **ZK proofs**: Sharia council privacy (Groth16/UltraHONK)
 
 ---
 
