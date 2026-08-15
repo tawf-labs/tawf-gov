@@ -1,43 +1,15 @@
 # Tawf Governance System
 
-The governance backbone for the TAWF Sharia DApps Ecosystem. Provides identity (Tawf Passport), reputation, proposals, voting, milestone-based fund release, campaign pools, and Zakat-compliant escrow.
+Decentralized Sharia-compliant DAO for Zakat, Wakaf, and charitable giving.
 
-**Live on Ethereum Sepolia** — wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon).
+> **Status**: Live on Sepolia (Ethereum), wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon). The core is targeting an Arbitrum mainnet deployment after a security audit.
 
-## Architecture
+---
 
-```
-src/
-├── identity/
-│   ├── TawfPassport.sol       ERC-5192 soulbound — Muzakki, Mustahik, Organization, ShariaCouncil
-│   ├── TawfReputation.sol     Points-based reputation with history
-│   ├── ERC5192.sol            Minimal Soulbound NFT (Final, EIP-5192)
-│   └── IERC5192.sol           ERC-5192 interface
-├── governance/
-│   ├── ProposalManager.sol    Proposal lifecycle, KYC, campaign types, milestones
-│   ├── VotingManager.sol      Tiered NFT voting (Tier 1/2/3 based on participation)
-│   ├── MilestoneManager.sol   Sequential fund release with proof submission + voting
-│   └── ParticipationTracker.sol  Privacy-safe activity counts (no amounts stored)
-├── protocol/
-│   ├── PoolManager.sol        Campaign pool creation, fundraising, withdrawal
-│   ├── ZakatEscrowManager.sol Shafi'i-compliant Zakat escrow (30-day deadline, grace, redistribution)
-│   └── DonationReceiptNFT.sol Soulbound ERC-721 receipt per donation
-├── tokens/
-│   ├── MockIDRX.sol           Testnet ERC-20 stablecoin with faucet
-│   └── VotingNFT.sol          Soulbound voting power (Tier 1=1, Tier 2=2, Tier 3=3 votes)
-├── admin/
-│   ├── ProtocolAdmin.sol      Pause + admin controls
-│   └── TawfLabsMultisig.sol   2-of-N multisig wallet
-├── protocol/
-│   └── WakafTreasury.sol      Endowment fund management
-└── interfaces/
-    ├── ITawfPassport.sol
-    ├── ITawfReputation.sol
-    ├── IProposalManager.sol
-    └── IProtocolAdmin.sol
-```
+## Ethereum Core (Active)
 
-## Sepolia Deployment (V1 — 2026-05-29)
+The DAO is built on the Ethereum VM. Identity, voting, and treasury contracts are
+deployed on Sepolia and move to Arbitrum next.
 
 | Contract | Address |
 |----------|---------|
@@ -53,53 +25,36 @@ src/
 | ZakatEscrowManager | `0x3534105fD0338dAF5Faa0BC97c760Fe861bd052e` |
 | MockIDRX | `0x23A48A17ea36627ACF4Ce349C14d17c7e7F90BCE` |
 
-**Deploy script:** `script/DeployTawfSystem.s.sol` · Gas used: ~28.3M
+**Deploy script**: `gov/script/DeployTawfSystem.s.sol`
 
-## Tawf Passport Types (ERC-5192)
+### Architecture (Ethereum)
 
-| Type | Who | Can do |
-|------|-----|--------|
-| **Muzakki** | Donor | Donate, generate ZK eligibility proofs |
-| **Mustahik** | Recipient | Receive zakat, encrypted off-chain metadata |
-| **Organization** | NGO/Charity | Create proposals, manage campaigns, withdraw funds |
-| **ShariaCouncil** | Islamic scholar | Review proposals, session-code auth (no wallet needed) |
-
-Soulbound via ERC-5192. Burn rights: holder can `renouncePassport()`, admin can `revokePassport()`.
-
-## Quick Start
-
-```bash
-git clone https://github.com/tawf-labs/tawf-gov.git
-cd tawf-gov/gov
-forge build
+```
+gov/src/
+├── identity/
+│   ├── TawfPassport.sol       ERC-5192 soulbound
+│   ├── TawfReputation.sol     Points-based reputation
+│   └── ERC5192.sol            Minimal Soulbound NFT
+├── governance/
+│   ├── ProposalManager.sol    Proposal lifecycle, KYC, milestones
+│   ├── VotingManager.sol      Tiered NFT voting
+│   ├── MilestoneManager.sol   Sequential fund release
+│   └── ParticipationTracker.sol  Activity counts
+├── protocol/
+│   ├── PoolManager.sol        Campaign pools, fundraising
+│   ├── ZakatEscrowManager.sol Shafi'i-compliant Zakat escrow
+│   ├── WakafTreasury.sol      Endowment fund management
+│   └── DonationReceiptNFT.sol Soulbound ERC-721 receipt
+├── tokens/
+│   ├── MockIDRX.sol           Testnet ERC-20 stablecoin
+│   └── VotingNFT.sol          Soulbound voting power
+├── admin/
+│   ├── ProtocolAdmin.sol      Pause + admin controls
+│   └── TawfLabsMultisig.sol   2-of-N multisig
+└── interfaces/
 ```
 
-### Deploy
-
-```bash
-forge script script/DeployTawfSystem.s.sol \
-  --rpc-url sepolia --account <name> --broadcast
-```
-
-### Test
-
-```bash
-forge test
-```
-
-## Integration with zkt-hackathon
-
-The ZK layer ([zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon)) imports these contracts via forge submodule:
-
-```solidity
-import "@tawf-gov/governance/ProposalManager.sol";
-import "@tawf-gov/protocol/PoolManager.sol";
-// ... etc
-```
-
-ZKTCore acts as the orchestration layer, wiring ZK proof verification (Groth16/UltraHONK) and nullifier-based double-spend prevention on top of the DAO contracts provided by this repo.
-
-## Governance Parameters
+### Governance Parameters
 
 | Parameter | Default | Settable via |
 |-----------|---------|-------------|
@@ -109,6 +64,39 @@ ZKTCore acts as the orchestration layer, wiring ZK proof verification (Groth16/U
 | Sharia quorum | 3 reviewers | `ShariaReviewManager.setShariaQuorum()` |
 | Zakat deadline | 30 days | Hardcoded in ZakatEscrowManager |
 
+### Integration with zkt-hackathon
+
+```solidity
+import "@tawf-gov/governance/ProposalManager.sol";
+import "@tawf-gov/protocol/PoolManager.sol";
+```
+
+ZKTCore acts as the orchestration layer with Groth16/UltraHONK ZK proofs and
+nullifier double-spend prevention.
+
+---
+
+## Solana (Deprecated)
+
+A Solana port lived on branch `feat/solana-migration` with 12 Anchor programs. It
+is stubbed in favor of the EVM core. See `tawf-gov-solana/DEPRECATED.md`.
+
+Any future multichain work is application-level only and does not replace the
+Ethereum core.
+
+---
+
+## Repository Structure
+
+```
+tawf-gov/
+├── gov/                    # Ethereum Solidity contracts (active, Sepolia → Arbitrum)
+├── tawf-gov-frontend/      # React frontend
+├── tawf-gov-solana/        # Solana Anchor programs (deprecated, stub)
+├── ROADMAP.md              # EVM roadmap
+└── ARCHITECTURE.md         # System architecture docs
+```
+
 ## License
 
-MIT — see LICENSE.
+Apache 2.0, see LICENSE.
