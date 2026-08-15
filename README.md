@@ -2,53 +2,14 @@
 
 Decentralized Sharia-compliant DAO for Zakat, Wakaf, and charitable giving.
 
-> **Ethereum (V1)**: Live on Sepolia, wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon)
-> **Solana (V2)**: Active migration, [branch `feat/solana-migration`](https://github.com/tawf-labs/tawf-gov/tree/feat/solana-migration)
+> **Status**: Live on Sepolia (Ethereum), wired to ZKTCore from [zkt-hackathon](https://github.com/tawf-labs/zkt-hackathon). The core is targeting an Arbitrum mainnet deployment after a security audit.
 
 ---
 
-## Solana Migration (Active)
+## Ethereum Core (Active)
 
-All 11 Anchor programs built, deployed to localnet, and integration-tested (27/27 passing).
-
-| Layer | Programs | Status |
-|-------|----------|--------|
-| Identity | `tawf-passport`, `voting-nft` | ✅ 11 tests |
-| Governance | `proposal-manager`, `voting-manager`, `milestone-manager` | ✅ 9 tests |
-| Protocol | `pool-manager`, `zakat-escrow`, `wakaf-treasury`, `donation-receipt-nft` | ✅ 7 tests |
-| Dev | `idrx-mock` | ✅ 2 tests |
-
-**Frontend**: React 19 + Vite 6.2 + Tailwind CSS v4 + Solana wallet adapter
-
-**Stablecoin**: IDRX SPL (`idrxZcP8xiKkYk6XGD4uz1dxEYCWSgKDHqgjsBbwDur`), Token-2022
-
-**[View full roadmap →](ROADMAP.md)**
-
-### Quick Start (Solana)
-
-```bash
-git checkout feat/solana-migration
-cd tawf-gov-solana
-
-# Start local validator
-solana-test-validator --reset --quiet
-
-# Deploy all 11 programs
-anchor deploy
-
-# Run 27 integration tests
-ANCHOR_PROVIDER_URL=http://localhost:8899 ANCHOR_WALLET=/tmp/chaos-wallet.json \
-  npx ts-mocha -p ./tsconfig.json -t 1000000 'tests/*.ts'
-
-# Start frontend
-cd ../tawf-gov-frontend && npm run dev
-```
-
----
-
-## Ethereum Version (V1: Sepolia)
-
-### Deployed Contracts
+The DAO is built on the Ethereum VM. Identity, voting, and treasury contracts are
+deployed on Sepolia and move to Arbitrum next.
 
 | Contract | Address |
 |----------|---------|
@@ -64,16 +25,16 @@ cd ../tawf-gov-frontend && npm run dev
 | ZakatEscrowManager | `0x3534105fD0338dAF5Faa0BC97c760Fe861bd052e` |
 | MockIDRX | `0x23A48A17ea36627ACF4Ce349C14d17c7e7F90BCE` |
 
-**Deploy script:** `script/DeployTawfSystem.s.sol` · Gas used: ~28.3M
+**Deploy script**: `gov/script/DeployTawfSystem.s.sol`
 
 ### Architecture (Ethereum)
 
 ```
-src/
+gov/src/
 ├── identity/
 │   ├── TawfPassport.sol       ERC-5192 soulbound
 │   ├── TawfReputation.sol     Points-based reputation
-│   └── ERC5192.sol            Minimal Soulbound NFT (Final)
+│   └── ERC5192.sol            Minimal Soulbound NFT
 ├── governance/
 │   ├── ProposalManager.sol    Proposal lifecycle, KYC, milestones
 │   ├── VotingManager.sol      Tiered NFT voting
@@ -110,7 +71,18 @@ import "@tawf-gov/governance/ProposalManager.sol";
 import "@tawf-gov/protocol/PoolManager.sol";
 ```
 
-ZKTCore acts as orchestration layer, Groth16/UltraHONK ZK proofs + nullifier double-spend prevention.
+ZKTCore acts as the orchestration layer with Groth16/UltraHONK ZK proofs and
+nullifier double-spend prevention.
+
+---
+
+## Solana (Deprecated)
+
+A Solana port lived on branch `feat/solana-migration` with 12 Anchor programs. It
+is stubbed in favor of the EVM core. See `tawf-gov-solana/DEPRECATED.md`.
+
+Any future multichain work is application-level only and does not replace the
+Ethereum core.
 
 ---
 
@@ -118,11 +90,10 @@ ZKTCore acts as orchestration layer, Groth16/UltraHONK ZK proofs + nullifier dou
 
 ```
 tawf-gov/
-├── gov/                    # Ethereum Solidity contracts (V1, Sepolia)
-├── tawf-gov-solana/        # Solana Anchor programs (V2, migration branch)
-├── tawf-gov-frontend/      # React 19 + Vite 6.2 frontend
-├── MIGRATION_PLAN.md       # Full migration plan (EVM → Solana)
-├── ROADMAP.md              # 5-phase timeline with status
+├── gov/                    # Ethereum Solidity contracts (active, Sepolia → Arbitrum)
+├── tawf-gov-frontend/      # React frontend
+├── tawf-gov-solana/        # Solana Anchor programs (deprecated, stub)
+├── ROADMAP.md              # EVM roadmap
 └── ARCHITECTURE.md         # System architecture docs
 ```
 

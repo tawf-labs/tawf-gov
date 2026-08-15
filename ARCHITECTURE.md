@@ -1,6 +1,10 @@
 # Tawf Governance System: Architecture
 
-## Solana Architecture (V2: Active Migration)
+> The Ethereum architecture (Sepolia, targeting Arbitrum) is the active core. The
+> Solana section below is deprecated and kept for reference only. See
+> `tawf-gov-solana/DEPRECATED.md`.
+
+## Solana Architecture (Deprecated)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -83,7 +87,7 @@ All programs read each other's accounts directly (same Solana runtime). No compl
 
 ---
 
-## Ethereum Architecture (V1: Sepolia)
+## Ethereum Architecture (Sepolia, targeting Arbitrum)
 
 ### System Components
 
@@ -138,7 +142,7 @@ PoolManager → withdraw funds
 
 ## Testing Strategy
 
-### Solana (Active)
+### Solana (Deprecated)
 
 | Level | Tool | Count | Status |
 |-------|------|-------|--------|
